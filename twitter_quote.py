@@ -6,7 +6,7 @@ import json
 import random
 from twitter_prop import TwitterProp
 
-class TwitterReply(TwitterProp):
+class TwitterQuote(TwitterProp):
 	def __init__(self, page):
 		super().__init__(page)
 

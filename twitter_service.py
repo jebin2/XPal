@@ -4,12 +4,14 @@ import random
 import logger_config
 from twitter_reply import TwitterReply
 from twitter_like import TwitterLike
+from twitter_quote import TwitterQuote
 import traceback
 
 class TwitterService:
     action_map = {
         "reply": TwitterReply,
-        "like": TwitterLike
+        "like": TwitterLike,
+        "quote": TwitterQuote
 	}
 
     def __init__(self, page, channel_name=None):
@@ -31,7 +33,7 @@ class TwitterService:
         logger_config.debug("Precaution wait after load...", seconds=5)
 
     def _get_actions(self):
-        actions = ["reply", "like"]
+        actions = ["reply", "like", "quote"]
         random.shuffle(actions)
         return actions
 
