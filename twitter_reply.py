@@ -4,24 +4,23 @@ import google_ai_studio
 import logger_config
 import json
 import random
+from twitter_prop import TwitterProp
 
-class TwitterReply:
+class TwitterReply(TwitterProp):
 	def __init__(self, page):
-		self.page = page
+		super().__init__(page)
 
-	def _valid(self, user_prompt, file_path):
-		is_valid_post = True
-		if global_config["specifc_post_validation_sp"]:
-			_, _, model_responses = google_ai_studio.process(global_config["specifc_post_validation_sp"], user_prompt, file_path=file_path)
-			response = json.loads(model_responses[0]["parts"][0])
-			is_valid_post = True if response[global_config["specifc_post_key"]].lower() == "yes" else False
+	def valid(self, user_prompt, file_path):
+		if super().valid(user_prompt, file_path):
+			is_valid_post = True
+			if global_config["reply_decider_sp"]:
+				_, _, model_responses = google_ai_studio.process(global_config["reply_decider_sp"], user_prompt, file_path=file_path)
+				response = json.loads(model_responses[0]["parts"][0])
+				is_valid_post = True if response["reply"].lower() == "yes" else False
 
-		return is_valid_post
+			return is_valid_post
 
-	def _reload(self):
-		self.page.reload()
-		self.page.wait_for_load_state("domcontentloaded")
-		logger_config.debug("Precaution wait after load...", seconds=5)
+		return False
 
 	def _reply(self, reply_queryselector, reply):
 		x_utils.click(self.page, f".current_processing_post {reply_queryselector}")
@@ -62,7 +61,7 @@ class TwitterReply:
 					"media_link": media_link
 				})
 
-				if self._valid(user_prompt, file_path):
+				if self.valid(user_prompt, file_path):
 					count += 1
 					_, _, model_responses = google_ai_studio.process(random.choice(reply_sp), user_prompt, file_path=file_path)
 					response = json.loads(model_responses[0]["parts"][0])
