@@ -22,8 +22,8 @@ class TwitterReply(TwitterProp):
 
 		return False
 
-	def _reply(self, reply_queryselector, reply):
-		x_utils.click(self.page, f".current_processing_post {reply_queryselector}")
+	def _reply(self, reply_queryselector, reply, id):
+		x_utils.click(self.page, f'article:has-text("{id}") >> {reply_queryselector}')
 		textbox = self.page.locator(global_config["reply_editor_selector"])
 		textbox.type(reply)
 		x_utils.click(self.page, global_config["reply_tweet_selector"])
@@ -57,15 +57,12 @@ class TwitterReply(TwitterProp):
 				reply_queryselector = response["reply_queryselector"]
 				mime_type, file_path = self.download(media_link)
 				
-				old_post.append({
-					"description": user_prompt,
-					"media_link": media_link
-				})
+				old_post.append(article[0]["id"])
 
 				if self.valid(user_prompt, file_path):
 					count += 1
 					_, _, model_responses = google_ai_studio.process(random.choice(reply_sp), user_prompt, file_path=file_path, mime_type=mime_type)
 					response = json.loads(model_responses[0]["parts"][0])
-					self._reply(reply_queryselector, response["reply"])
+					self._reply(reply_queryselector, response["reply"], article[0]["id"])
 			else:
 				self.reload()

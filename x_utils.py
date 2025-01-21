@@ -71,28 +71,18 @@ def get_new_post(page, old_post=[]):
                         break;
                     }
                     post.scrollIntoView({ behavior: "smooth" })
-                    let text = post.innerText.replace(/[^a-zA-Z \\n]/g, '').replace(/\\n/g, '').toLowerCase();
-                    if (!text) {
-                        continue;
-                    }
-                    console.log(text)
-                    let has_data = oldPost.filter(old => {
-                        let old_text = old.description.replace(/[^a-zA-Z \\n]/g, '').replace(/\\n/g, '').toLowerCase();
-                        if (text && old_text) {
-                            console.log(old_text);
-                            return text.includes(old.media_link) || text.includes(old_text);
+                    outerHTML = post.outerHTML
+                    const match = outerHTML.match(/\/status\/(.*?)"/);
+                    if (match) {
+                        console.log(match[1]);
+                        if (oldPost.includes(match[1])) {
+                            continue;
                         }
-                        if (!old_text) {
-                            return false
-                        }
-                        return true;
-                    });
-
-                    if (!has_data[0]) {
                         post.classList.add("current_processing_post");
                         articles.push({
                             "visible": 1,
                             "html": post.outerHTML,
+                            "id": match[1]
                         });
                         postLimit = -1;
                         break;  // Return immediately after finding a new post

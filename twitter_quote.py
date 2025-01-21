@@ -22,8 +22,8 @@ class TwitterQuote(TwitterProp):
 
 		return False
 
-	def _quote(self, repost_queryselector, reply):
-		x_utils.click(self.page, f".current_processing_post {repost_queryselector}")
+	def _quote(self, repost_queryselector, reply, id):
+		x_utils.click(self.page, f'article:has-text("{id}") >> {repost_queryselector}')
 		x_utils.click(self.page, f"{global_config['quote_tweet_selector']}")
 		textbox = self.page.locator(global_config["reply_editor_selector"])
 		textbox.type(reply)
@@ -58,15 +58,12 @@ class TwitterQuote(TwitterProp):
 				repost_queryselector = response["repost_queryselector"]
 				mime_type, file_path = self.download(media_link)
 				
-				old_post.append({
-					"description": user_prompt,
-					"media_link": media_link
-				})
+				old_post.append(article[0]["id"])
 
 				if self.valid(user_prompt, file_path):
 					count += 1
 					_, _, model_responses = google_ai_studio.process(random.choice(reply_sp), user_prompt, file_path=file_path, mime_type=mime_type)
 					response = json.loads(model_responses[0]["parts"][0])
-					self._quote(repost_queryselector, response["quote"])
+					self._quote(repost_queryselector, response["quote"], article[0]["id"])
 			else:
 				self.reload()

@@ -29,7 +29,7 @@ class TwitterService(TwitterProp):
         logger_config.debug("Precaution wait after load...", seconds=5)
 
     def _get_actions(self):
-        actions = ["quote"]
+        actions = ["reply"]
         random.shuffle(actions)
         return actions
 

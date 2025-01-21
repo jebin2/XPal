@@ -21,8 +21,8 @@ class TwitterLike(TwitterProp):
 
 		return False
 
-	def _like(self, like_queryselector):
-		x_utils.click(self.page, f".current_processing_post {like_queryselector}")
+	def _like(self, like_queryselector, id):
+		x_utils.click(self.page, f'article:has-text("{id}") >> {like_queryselector}')
 
 	def start(self):
 		count = 0
@@ -43,15 +43,12 @@ class TwitterLike(TwitterProp):
 				like_queryselector = response["like_queryselector"]
 				mime_type, file_path = self.download(media_link)
 				
-				old_post.append({
-					"description": user_prompt,
-					"media_link": media_link
-				})
+				old_post.append(article[0]["id"])
 
 				if self.valid(user_prompt, file_path):
 					count += 1
 					_, _, model_responses = google_ai_studio.process(global_config["html_parser_sp"], user_prompt, file_path=file_path, mime_type=mime_type)
 					response = json.loads(model_responses[0]["parts"][0])
-					self._like(like_queryselector)
+					self._like(like_queryselector, article[0]["id"])
 			else:
 				self.reload()
