@@ -26,7 +26,7 @@ def start():
 				logger_config.info("Wait before next channel", seconds=50)
 				browser.close()
 
-			logger_config.info("Wait 1 hour for next iteration.")
+			logger_config.info("Wait 1 hour for next iteration.", seconds=60*60)
 
 
 if __name__ == "__main__":
