@@ -5,9 +5,10 @@ import logger_config
 from twitter_reply import TwitterReply
 from twitter_like import TwitterLike
 from twitter_quote import TwitterQuote
+from twitter_prop import TwitterProp
 import traceback
 
-class TwitterService:
+class TwitterService(TwitterProp):
     action_map = {
         "reply": TwitterReply,
         "like": TwitterLike,
@@ -15,7 +16,7 @@ class TwitterService:
 	}
 
     def __init__(self, page, channel_name=None):
-        self.page = page
+        super().__init__(page)
         self.channel_name = channel_name
         load_toml(self.channel_name)
         self.load_page()
@@ -27,13 +28,8 @@ class TwitterService:
         self.page.wait_for_load_state("domcontentloaded")
         logger_config.debug("Precaution wait after load...", seconds=5)
 
-    def reload(self):
-        self.page.reload()
-        self.page.wait_for_load_state("domcontentloaded")
-        logger_config.debug("Precaution wait after load...", seconds=5)
-
     def _get_actions(self):
-        actions = ["reply", "like", "quote"]
+        actions = ["quote"]
         random.shuffle(actions)
         return actions
 

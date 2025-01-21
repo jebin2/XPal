@@ -16,7 +16,7 @@ class TwitterQuote(TwitterProp):
 			if global_config["quote_decider_sp"]:
 				_, _, model_responses = google_ai_studio.process(global_config["quote_decider_sp"], user_prompt, file_path=file_path)
 				response = json.loads(model_responses[0]["parts"][0])
-				is_valid_post = True if response["reply"].lower() == "yes" else False
+				is_valid_post = True if response["quote"].lower() == "yes" else False
 
 			return is_valid_post
 
@@ -56,7 +56,7 @@ class TwitterQuote(TwitterProp):
 				user_prompt = response["description"]
 				media_link = response["media_link"]
 				repost_queryselector = response["repost_queryselector"]
-				file_path = x_utils.download_image(media_link)
+				mime_type, file_path = self.download(media_link)
 				
 				old_post.append({
 					"description": user_prompt,
@@ -65,6 +65,8 @@ class TwitterQuote(TwitterProp):
 
 				if self.valid(user_prompt, file_path):
 					count += 1
-					_, _, model_responses = google_ai_studio.process(random.choice(reply_sp), user_prompt, file_path=file_path)
+					_, _, model_responses = google_ai_studio.process(random.choice(reply_sp), user_prompt, file_path=file_path, mime_type=mime_type)
 					response = json.loads(model_responses[0]["parts"][0])
-					self._quote(repost_queryselector, response["reply"])
+					self._quote(repost_queryselector, response["quote"])
+			else:
+				self.reload()

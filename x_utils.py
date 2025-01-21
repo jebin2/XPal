@@ -20,14 +20,33 @@ def download_image(url):
     try:
         response = requests.get(url)
         path = f"{global_config['base_path']}/image.jpg"
-        common.remove_file()
+        common.remove_file(path)
         with open(path, "wb") as file:
             file.write(response.content)
 
         logger_config.success(f"Image downloaded as {path}")
         return path
     except:
-        return None
+        pass
+
+    return None
+
+def download_video(url):
+    try:
+        response = requests.get(url, stream=True)
+        path = f"{global_config['base_path']}/video.mp4"
+        common.remove_file(path)
+        if response.status_code == 200:
+            with open(path, "wb") as file:
+                for chunk in response.iter_content(chunk_size=1024):
+                    file.write(chunk)
+
+            logger_config.success(f"Video downloaded as {path}")
+            return path
+    except:
+        pass
+
+    return None
 
 def get_new_post(page, old_post=[]):
     return page.evaluate(
@@ -53,6 +72,9 @@ def get_new_post(page, old_post=[]):
                     }
                     post.scrollIntoView({ behavior: "smooth" })
                     let text = post.innerText.replace(/[^a-zA-Z \\n]/g, '').replace(/\\n/g, '').toLowerCase();
+                    if (!text) {
+                        continue;
+                    }
                     console.log(text)
                     let has_data = oldPost.filter(old => {
                         let old_text = old.description.replace(/[^a-zA-Z \\n]/g, '').replace(/\\n/g, '').toLowerCase();
@@ -61,7 +83,7 @@ def get_new_post(page, old_post=[]):
                             return text.includes(old.media_link) || text.includes(old_text);
                         }
                         if (!old_text) {
-                            return False
+                            return false
                         }
                         return true;
                     });
