@@ -24,7 +24,6 @@ class TwitterPost(TwitterProp):
 		return False
 
 	def _post(self, post, file_path):
-		file_path = "/home/jebineinstein/dragon_ball_z_-_001.mp4"
 		textbox = self.page.locator(global_config["post_textarea_selector"])
 		textbox.type(post)
 		textbox.type(" ")
