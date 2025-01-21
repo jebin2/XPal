@@ -23,12 +23,12 @@ class TwitterQuote(TwitterProp):
 		return False
 
 	def _quote(self, repost_queryselector, reply, id):
-		x_utils.click(self.page, f'article:has-text("{id}") >> {repost_queryselector}')
+		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {repost_queryselector}')
 		x_utils.click(self.page, f"{global_config['quote_tweet_selector']}")
 		textbox = self.page.locator(global_config["reply_editor_selector"])
 		textbox.type(reply)
 		x_utils.click(self.page, global_config["reply_tweet_selector"])
-		self._reload()
+		self.reload()
 
 	def start(self):
 		count = 0

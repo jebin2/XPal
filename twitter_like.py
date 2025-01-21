@@ -22,7 +22,7 @@ class TwitterLike(TwitterProp):
 		return False
 
 	def _like(self, like_queryselector, id):
-		x_utils.click(self.page, f'article:has-text("{id}") >> {like_queryselector}')
+		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {like_queryselector}')
 
 	def start(self):
 		count = 0
