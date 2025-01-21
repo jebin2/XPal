@@ -28,6 +28,7 @@ class TwitterLike(TwitterProp):
 		count = 0
 		old_post = []
 		while True:
+			logger_config.info("Wait for every iteration to avoid limit", seconds=global_config["wait_second"])
 			self.page.mouse.wheel(0, 500)
 			if count > global_config["like_count"]:
 				break

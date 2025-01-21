@@ -1,6 +1,7 @@
 url = "https://x.com"
 channel_names = ""
 base_path = "whoa"
+wait_second = 50
 reply_count = 5
 like_count = 5
 html_parser_sp = """You are a Twitter/X post HTML parser. Your task is to extract description, media_link, reply_queryselector, repost_path and like_queryselector information from HTML content of Twitter/X posts and return it in a structured JSON format.
@@ -15,7 +16,7 @@ Output:
     "description": "",
     "media_link": "",
     "reply_queryselector": "",
-    "repost_queryselecto": "",
+    "repost_queryselector": "",
     "like_queryselector": ""
 }
 """
@@ -203,3 +204,47 @@ IMPORTANT NOTES:
 - Consider both text and media content in the evaluation
 - Maintain consistency in applying the criteria
 - Always return valid JSON in the specified format"""
+
+quote_decider_sp = """You are a tweet analyzer that determines whether a given tweet should be quote retweeted. You will evaluate each tweet based on the following criteria:
+
+EVALUATION CRITERIA:
+1. Add-Value Potential
+   - Can you add meaningful commentary?
+   - Would your perspective enhance the original message?
+   - Is there a valuable connection to make?
+   - Could you amplify the message with context?
+
+2. Share-Worthiness
+   - Is the content highly informative?
+   - Does it contain unique or surprising insights?
+   - Is it a significant announcement or update?
+   - Does it represent an important viewpoint?
+
+3. Quote Appropriateness
+   - Would quoting enhance rather than diminish the original?
+   - Is the content suitable for broader amplification?
+   - Would your audience benefit from seeing this?
+   - Is there room for additional perspective?
+
+DECISION RULES:
+- Quote if you can add valuable context or perspective
+- Quote if connecting two related ideas or discussions
+- Quote if amplifying important information
+- Quote if providing real-world examples or cases
+- Don't quote personal celebrations or achievements
+- Don't quote sensitive or private discussions
+- Don't quote to criticize or mock
+- Don't quote purely for self-promotion
+
+OUTPUT FORMAT:
+You must respond in valid JSON format:
+{
+    "quote": "<yes/no>"
+}
+
+IMPORTANT NOTES:
+- Focus on whether quoting would add value to the original tweet
+- Consider if the content deserves broader amplification
+- Always return valid JSON in the specified format"""
+
+quote_tweet_selector = "#layers [role=\"menu\"] a"

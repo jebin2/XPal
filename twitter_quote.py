@@ -13,8 +13,8 @@ class TwitterReply(TwitterProp):
 	def valid(self, user_prompt, file_path):
 		if super().valid(user_prompt, file_path):
 			is_valid_post = True
-			if global_config["reply_decider_sp"]:
-				_, _, model_responses = google_ai_studio.process(global_config["reply_decider_sp"], user_prompt, file_path=file_path)
+			if global_config["quote_decider_sp"]:
+				_, _, model_responses = google_ai_studio.process(global_config["quote_decider_sp"], user_prompt, file_path=file_path)
 				response = json.loads(model_responses[0]["parts"][0])
 				is_valid_post = True if response["reply"].lower() == "yes" else False
 
@@ -22,8 +22,9 @@ class TwitterReply(TwitterProp):
 
 		return False
 
-	def _reply(self, reply_queryselector, reply):
-		x_utils.click(self.page, f".current_processing_post {reply_queryselector}")
+	def _quote(self, repost_queryselector, reply):
+		x_utils.click(self.page, f".current_processing_post {repost_queryselector}")
+		x_utils.click(self.page, f"{global_config['quote_tweet_selector']}")
 		textbox = self.page.locator(global_config["reply_editor_selector"])
 		textbox.type(reply)
 		x_utils.click(self.page, global_config["reply_tweet_selector"])
@@ -54,7 +55,7 @@ class TwitterReply(TwitterProp):
 				response = json.loads(model_responses[0]["parts"][0])
 				user_prompt = response["description"]
 				media_link = response["media_link"]
-				reply_queryselector = response["reply_queryselector"]
+				repost_queryselector = response["repost_queryselector"]
 				file_path = x_utils.download_image(media_link)
 				
 				old_post.append({
@@ -66,4 +67,4 @@ class TwitterReply(TwitterProp):
 					count += 1
 					_, _, model_responses = google_ai_studio.process(random.choice(reply_sp), user_prompt, file_path=file_path)
 					response = json.loads(model_responses[0]["parts"][0])
-					self._reply(reply_queryselector, response["reply"])
+					self._quote(repost_queryselector, response["reply"])
