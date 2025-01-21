@@ -27,6 +27,7 @@ class TwitterQuote(TwitterProp):
 		x_utils.click(self.page, f"{global_config['quote_tweet_selector']}")
 		textbox = self.page.locator(global_config["reply_editor_selector"])
 		textbox.type(reply)
+		textbox.type(" ")
 		x_utils.click(self.page, global_config["reply_tweet_selector"])
 		self.reload()
 
@@ -45,7 +46,7 @@ class TwitterQuote(TwitterProp):
 		while True:
 			logger_config.info("Wait for every iteration to avoid limit", seconds=global_config["wait_second"])
 			self.page.mouse.wheel(0, 500)
-			if count > global_config["reply_count"]:
+			if count > global_config["quote_count"]:
 				break
 
 			logger_config.info(f"Getting new post, old_post:: {old_post}")

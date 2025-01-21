@@ -26,6 +26,7 @@ class TwitterReply(TwitterProp):
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {reply_queryselector}')
 		textbox = self.page.locator(global_config["reply_editor_selector"])
 		textbox.type(reply)
+		textbox.type(" ")
 		x_utils.click(self.page, global_config["reply_tweet_selector"])
 		self.reload()
 

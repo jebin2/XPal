@@ -49,6 +49,13 @@ def process(system_instruction, user_prompt="", file_path=None, chat_session=Non
     user_payloads = []
     model_responses = []
 
+    if file_path.endswith(".png"):
+        mime_type = "image/png"
+    if file_path.endswith(".mp4"):
+        mime_type = "video/mp4"
+    if file_path.endswith(".mkv"):
+        mime_type = "video/x-matroska"
+
     # Create the model
     generation_config = {
         "temperature": 1,
