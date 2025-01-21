@@ -65,6 +65,6 @@ class TwitterQuote(TwitterProp):
 					count += 1
 					_, _, model_responses = google_ai_studio.process(random.choice(reply_sp), user_prompt, file_path=file_path, mime_type=mime_type)
 					response = json.loads(model_responses[0]["parts"][0])
-					self._quote(repost_queryselector, response["quote"], article[0]["id"])
+					self._quote(repost_queryselector, response["reply"], article[0]["id"])
 			else:
 				self.reload()
