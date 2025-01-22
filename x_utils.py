@@ -18,18 +18,27 @@ def click(page, name, timeout=1000 * 60 * 2):
 
 def download_image(url):
     try:
-        response = requests.get(url)
-        path = f"{global_config['base_path']}/image.jpg"
+        format = url.split('format=')[-1].split('&')[0].lower() if 'format=' in url else url.split('.')[-1].lower()
+
+        valid_formats = {"jpg", "jpeg", "png", "gif", "bmp", "tiff"}
+        if format not in valid_formats:
+            raise ValueError(f"Unsupported format: {format}. Supported formats are: {', '.join(valid_formats)}")
+
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+
+        path = f"{global_config['base_path']}/image.{format}"
         common.remove_file(path)
+
         with open(path, "wb") as file:
             file.write(response.content)
 
         logger_config.success(f"Image downloaded as {path}")
         return path
-    except:
-        pass
 
-    return None
+    except Exception as e:
+        logger_config.error(f"Failed to download the image: {e}")
+        return None
 
 def download_video(url):
     try:

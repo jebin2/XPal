@@ -42,16 +42,17 @@ class TwitterPost(TwitterProp):
 		self.reload()
 
 	def start(self):
-		count = 0
+		if global_config["media_path"]:
+			count = 0
 
-		while True:
-			logger_config.info("Wait for every iteration to avoid limit", seconds=global_config["wait_second"])
-			if count > global_config["post_count"]:
-				break
+			while True:
+				logger_config.info("Wait for every iteration to avoid limit", seconds=global_config["wait_second"])
+				if count > global_config["post_count"]:
+					break
 
-			file_path = random.choice([file for file in common.list_files_recursive(global_config["media_path"]) if file.endswith(".png") or file.endswith(".jpg") or file.endswith(".mkv") or file.endswith(".mp4")])
+				file_path = random.choice([file for file in common.list_files_recursive(global_config["media_path"]) if file.endswith(".png") or file.endswith(".jpg") or file.endswith(".mkv") or file.endswith(".mp4")])
 
-			count += 1
-			_, _, model_responses = google_ai_studio.process(global_config["post_sp"], "", file_path=file_path)
-			response = json.loads(model_responses[0]["parts"][0])
-			self._post(response["post"], file_path)
+				count += 1
+				_, _, model_responses = google_ai_studio.process(global_config["post_sp"], "", file_path=file_path)
+				response = json.loads(model_responses[0]["parts"][0])
+				self._post(response["post"], file_path)
