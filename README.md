@@ -35,8 +35,8 @@ Uses TOML files: `twitter.toml` (base config), `[channel_name].toml` (channel ov
 
 3. **Configuration**:
    - Edit `twitter.toml` (settings, prompts)
-   - Set API key in `.private.toml`
-   - (Optional) Create `[channel_name].toml` for channel-specific settings
+   - Set API key in `.private.toml` under base_path dir
+   - Create `[channel_name].toml` for channel-specific settings under base_path dir
 
 4. **Session Setup**: Run `python main.py`, manually login to Twitter in Brave browser within 90s. Cookies saved for reuse.
 
