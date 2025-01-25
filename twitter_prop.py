@@ -21,6 +21,9 @@ class TwitterProp:
 		self.page.reload()
 		self.page.wait_for_load_state("domcontentloaded")
 		logger_config.debug("Precaution wait after load...", seconds=5)
+		# To remove popup
+		self.page.keyboard.press("Escape")
+		self.page.keyboard.press("Escape")
 
 	def download(self, media_link):
 		try:
