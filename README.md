@@ -58,18 +58,6 @@ Bot starts, loads config/session, performs actions (reply, like, quote, post) on
 - **Channel Settings**: Use `[channel_name].toml` for specific settings
 - **Action Types**: Modify `_get_actions` in `twitter_service.py` to change action types
 
-## Dependencies
-
-- playwright
-- toml
-- requests
-- google-generativeai
-
-(Create `requirements.txt` with these)
-
-## License
-
-[License here, e.g., MIT License]
 
 ## Disclaimer
 
