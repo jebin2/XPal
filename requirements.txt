@@ -1,0 +1,4 @@
+playwright
+toml
+requests
+google-generativeai
