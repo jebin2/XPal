@@ -1,5 +1,5 @@
 url = "https://x.com"
-google_ai_studio = ""
+google_ai_studio_API_KEY = ""
 # comma separated example "channelname1,channelname2"
 channel_names = ""
 base_path = "whoa"

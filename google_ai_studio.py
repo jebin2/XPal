@@ -2,7 +2,7 @@ import logger_config
 import google.generativeai as genai
 from local_global import global_config
 
-genai.configure(api_key=global_config["google_ai_studio"])
+genai.configure(api_key=global_config["google_ai_studio_API_KEY"])
 
 def upload_to_gemini(path, mime_type="image/jpeg"):
     """Uploads the given file to Gemini.
