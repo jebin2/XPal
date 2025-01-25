@@ -1,5 +1,6 @@
 import toml
 import json
+import logger_config
 
 global_config = {}
 
@@ -17,6 +18,6 @@ def load_toml(channel_name=None):
         toml_data = toml.load(file)
         global_config.update(toml_data)
 
-    print(json.dumps(global_config, indent=4))
+    logger_config.info(json.dumps(global_config, indent=4))
 
 load_toml()
