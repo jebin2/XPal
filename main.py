@@ -3,6 +3,7 @@ import logger_config
 from local_global import global_config
 import random
 from twitter_service import TwitterService
+import common
 
 def new_page(p):
 	browser = p.chromium.launch(executable_path='/usr/bin/brave-browser', headless=False, args=["--disable-blink-features=AutomationControlled"])
@@ -15,6 +16,7 @@ def new_page(p):
 
 def start():
 	with sync_playwright() as p:
+		common.create_directory(global_config['base_path'])
 		while True:
 			channel_names = global_config["channel_names"].split(",")
 			random.shuffle(channel_names)
