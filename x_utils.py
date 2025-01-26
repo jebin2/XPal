@@ -70,7 +70,7 @@ def get_new_post(page, old_post=[]):
                 }
             }
             let articles = [];
-            let postLimit = 200;  // Max posts to check
+            let postLimit = 20;  // Max posts to check
 
             while(postLimit > 0) {
                 for (post of home_timeline.querySelectorAll("article")) {
