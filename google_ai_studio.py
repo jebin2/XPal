@@ -1,8 +1,9 @@
 import logger_config
 import google.generativeai as genai
+from google.api_core.exceptions import ResourceExhausted
 from local_global import global_config
 
-genai.configure(api_key=global_config["google_ai_studio_API_KEY"])
+USED_API_KEY = []
 
 def upload_to_gemini(path, mime_type="image/jpeg"):
     """Uploads the given file to Gemini.
@@ -43,7 +44,14 @@ def wait_for_files_active(files):
 
     logger_config.success("...all files ready")
 
+def handle_quota_exceeded():
+    for key in global_config["google_ai_studio_API_KEY"].split(","):
+        if key not in USED_API_KEY:
+            genai.configure(api_key=key)
+            USED_API_KEY.append(key)
+
 def process(system_instruction, user_prompt="", file_path=None, chat_session=None, mime_type="image/jpeg", delete_files=False, response_schema=None):
+    handle_quota_exceeded()
     logger_config.debug(f"system_instruction: {system_instruction}")
     all_files = [file_path] if file_path else ["no_file"]
     user_payloads = []
@@ -97,7 +105,13 @@ def process(system_instruction, user_prompt="", file_path=None, chat_session=Non
             wait_for_files_active([uploaded_file])
             user_payloads[-1]["parts"].append(uploaded_file)
 
-        response = chat_session.send_message(content=user_payloads[-1])
+        response = None
+        try:
+            response = chat_session.send_message(content=user_payloads[-1])
+        except ResourceExhausted as e:
+            handle_quota_exceeded()
+            response = chat_session.send_message(content=user_payloads[-1])
+
         model_responses.append({"role": "model", "parts": [response.text]})
         logger_config.debug(f"Google AI studio response: {response.text}")
 
