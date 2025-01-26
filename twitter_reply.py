@@ -24,11 +24,15 @@ class TwitterReply(TwitterProp):
 
 	def _reply(self, reply_queryselector, reply, id):
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {reply_queryselector}')
-		textbox = self.page.locator(global_config["reply_editor_selector"])
-		textbox.type(reply)
-		textbox.type(" ")
-		x_utils.click(self.page, global_config["reply_tweet_selector"])
-		self.reload()
+		element = self.page.query_selector(global_config["disable_warning_selector"])
+		if element:
+			x_utils.click(self.page, global_config["disable_warning_selector"])
+		else:
+			textbox = self.page.locator(global_config["reply_editor_selector"])
+			textbox.type(reply)
+			textbox.type(" ")
+			x_utils.click(self.page, global_config["reply_tweet_selector"])
+			self.reload()
 
 	def start(self):
 		count = 0

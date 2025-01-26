@@ -369,3 +369,5 @@ You are a sophisticated tweet composer that analyzes provided media (images/vide
 - Forced humor
 
 Remember: Each tweet should feel like an organic, human response to the media, enhancing the visual content while maintaining authenticity."""
+
+disable_warning_selector = "data-testid=\"app-bar-close\""
