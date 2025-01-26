@@ -25,7 +25,7 @@ def start():
 				twitterService = TwitterService(page, channel)
 				twitterService.play()
 
-				logger_config.info("Wait before next channel", seconds=50)
+				logger_config.info("Wait before next channel", seconds=60)
 				browser.close()
 
 			logger_config.info("Wait 1 hour for next iteration.", seconds=60*60)
