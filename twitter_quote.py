@@ -45,6 +45,7 @@ class TwitterQuote(TwitterProp):
 		max_itr = 10
 		while True:
 			max_itr -= 1
+			logger_config.info(f'{global_config["wait_second"]} sec scroll')
 			x_utils.simulate_human_scroll(self.page, global_config["wait_second"])
 			if count > global_config["quote_count"] or max_itr < 0:
 				break

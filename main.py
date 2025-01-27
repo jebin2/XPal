@@ -4,6 +4,7 @@ from local_global import global_config
 import random
 from twitter_service import TwitterService
 import common
+import x_utils
 
 def new_page(p):
 	browser = p.chromium.launch(executable_path='/usr/bin/brave-browser', headless=False, args=["--disable-blink-features=AutomationControlled"])
@@ -25,7 +26,8 @@ def start():
 				twitterService = TwitterService(page, channel)
 				twitterService.play()
 
-				logger_config.info("Wait before next channel", seconds=60)
+				logger_config.info("60 sec scroll before next channel.")
+				x_utils.simulate_human_scroll(page, 60)
 				browser.close()
 
 			logger_config.info("Wait 1 hour for next iteration.", seconds=60*60)
