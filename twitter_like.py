@@ -30,8 +30,7 @@ class TwitterLike(TwitterProp):
 		max_itr = 10
 		while True:
 			max_itr -= 1
-			logger_config.info("Wait for every iteration to avoid limit", seconds=global_config["wait_second"])
-			self.page.mouse.wheel(0, 500)
+			x_utils.simulate_human_scroll(self.page, global_config["wait_second"])
 			if count > global_config["like_count"] or max_itr < 0:
 				break
 

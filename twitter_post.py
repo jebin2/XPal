@@ -39,14 +39,13 @@ class TwitterPost(TwitterProp):
 			self.page.wait_for_timeout(100)
 
 		x_utils.click(self.page, global_config["post_tweet_selector"])
-		self.reload()
 
 	def start(self):
 		if global_config["media_path"]:
 			count = 0
 
 			while True:
-				logger_config.info("Wait for every iteration to avoid limit", seconds=global_config["wait_second"])
+				x_utils.simulate_human_scroll(self.page, global_config["wait_second"])
 				if count > global_config["post_count"]:
 					break
 

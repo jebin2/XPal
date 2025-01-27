@@ -32,7 +32,6 @@ class TwitterReply(TwitterProp):
 			textbox.type(reply)
 			textbox.type(" ")
 			x_utils.click(self.page, global_config["reply_tweet_selector"])
-			self.reload()
 
 	def start(self):
 		count = 0
@@ -49,8 +48,7 @@ class TwitterReply(TwitterProp):
 		max_itr = 10
 		while True:
 			max_itr -= 1
-			logger_config.info("Wait for every iteration to avoid limit", seconds=global_config["wait_second"])
-			self.page.mouse.wheel(0, 500)
+			x_utils.simulate_human_scroll(self.page, global_config["wait_second"])
 			if count > global_config["reply_count"] or max_itr < 0:
 				break
 
