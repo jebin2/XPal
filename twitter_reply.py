@@ -46,10 +46,12 @@ class TwitterReply(TwitterProp):
 			except:
 				break
 
+		max_itr = 10
 		while True:
+			max_itr -= 1
 			logger_config.info("Wait for every iteration to avoid limit", seconds=global_config["wait_second"])
 			self.page.mouse.wheel(0, 500)
-			if count > global_config["reply_count"]:
+			if count > global_config["reply_count"] or max_itr < 0:
 				break
 
 			logger_config.info(f"Getting new post, old_post:: {old_post}")
