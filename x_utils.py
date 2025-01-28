@@ -174,8 +174,8 @@ def simulate_human_scroll(page, duration_seconds):
                 page.wait_for_timeout(random.randint(30, 50))
     
     while time.time() - start_time < duration_seconds:
-        # 10% chance of sudden scroll to top/bottom
-        if random.random() < 0.10:
+        # 2% chance of sudden scroll to top/bottom
+        if random.random() < 0.02:
             sudden_scroll()
             # Pause after sudden scroll to simulate orientation
             time.sleep(random.uniform(1, 2))
