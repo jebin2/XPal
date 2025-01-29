@@ -23,7 +23,7 @@ class TwitterReply(TwitterProp):
 		return False
 
 	def _reply(self, reply_queryselector, reply, id):
-		x_utils.click(self.page, f'article:has(a[href*="{id}"])')
+		x_utils.click(self.page, f'article:has(a[href*="{id}"]) div div div')
 		self.page.wait_for_load_state("domcontentloaded")
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {reply_queryselector}')
 		element = self.page.query_selector(global_config["disable_warning_selector"])

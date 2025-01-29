@@ -3,7 +3,7 @@ google_ai_studio_API_KEY = ""
 # comma separated example "channelname1,channelname2"
 channel_names = ""
 base_path = "whoa"
-wait_second = 60
+wait_second = 10
 reply_count = 5
 like_count = 5
 quote_count = 1
