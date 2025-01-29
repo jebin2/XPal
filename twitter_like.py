@@ -22,13 +22,20 @@ class TwitterLike(TwitterProp):
 		return False
 
 	def _like(self, like_queryselector, id):
+		x_utils.click(self.page, f'article:has(a[href*="{id}"])')
+		self.page.wait_for_load_state("domcontentloaded")
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {like_queryselector}')
+		x_utils.click(self.page, global_config["back_selector"])
+		self.page.wait_for_load_state("domcontentloaded")
 
 	def start(self):
 		count = 0
 		old_post = []
-		max_itr = 10
+		max_itr = 20
 		while True:
+			if max_itr == 10:
+				self.reload()
+
 			max_itr -= 1
 			logger_config.info(f'{global_config["wait_second"]} sec scroll')
 			x_utils.simulate_human_scroll(self.page, global_config["wait_second"])

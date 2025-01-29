@@ -23,12 +23,16 @@ class TwitterQuote(TwitterProp):
 		return False
 
 	def _quote(self, repost_queryselector, reply, id):
+		x_utils.click(self.page, f'article:has(a[href*="{id}"])')
+		self.page.wait_for_load_state("domcontentloaded")
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {repost_queryselector}')
 		x_utils.click(self.page, f"{global_config['quote_tweet_selector']}")
 		textbox = self.page.locator(global_config["reply_editor_selector"])
 		textbox.type(reply)
 		textbox.type(" ")
 		x_utils.click(self.page, global_config["reply_tweet_selector"])
+		x_utils.click(self.page, global_config["back_selector"])
+		self.page.wait_for_load_state("domcontentloaded")
 
 	def start(self):
 		count = 0
@@ -42,8 +46,11 @@ class TwitterQuote(TwitterProp):
 			except:
 				break
 
-		max_itr = 10
+		max_itr = 20
 		while True:
+			if max_itr == 10:
+				self.reload()
+
 			max_itr -= 1
 			logger_config.info(f'{global_config["wait_second"]} sec scroll')
 			x_utils.simulate_human_scroll(self.page, global_config["wait_second"])
