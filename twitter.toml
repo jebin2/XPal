@@ -166,6 +166,7 @@ IMPORTANT NOTES:
 - Always return valid JSON in the specified format"""
 specifc_post_validation_sp = ""
 media_path = ""
+delete_media_path_after_post = "yes"
 reply_editor_selector = "#layers .DraftEditor-editorContainer div[data-testid=\"tweetTextarea_0\"]"
 reply_tweet_selector = "#layers [data-testid=\"tweetButton\"]"
 

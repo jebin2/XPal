@@ -56,3 +56,5 @@ class TwitterPost(TwitterProp):
 				_, _, model_responses = google_ai_studio.process(global_config["post_sp"], "", file_path=file_path)
 				response = json.loads(model_responses[0]["parts"][0])
 				self._post(response["post"], file_path)
+				if global_config["delete_media_path_after_post"] == "yes":
+					common.remove_file(file_path)
