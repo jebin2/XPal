@@ -371,6 +371,6 @@ You are a sophisticated tweet composer that analyzes provided media (images/vide
 
 Remember: Each tweet should feel like an organic, human response to the media, enhancing the visual content while maintaining authenticity."""
 
-disable_warning_selector = "data-testid=\"app-bar-close\""
+disable_warning_selector = "button[data-testid=\"app-bar-close\"]"
 
 back_selector = "button[aria-label=\"Back\"]"
