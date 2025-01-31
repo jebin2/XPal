@@ -25,8 +25,7 @@ class TwitterLike(TwitterProp):
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) div div div')
 		self.page.wait_for_load_state("domcontentloaded")
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {like_queryselector}')
-		x_utils.click(self.page, global_config["back_selector"])
-		self.page.wait_for_load_state("domcontentloaded")
+		self.go_back()
 
 	def start(self):
 		count = 0

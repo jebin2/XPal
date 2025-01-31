@@ -25,13 +25,8 @@ class TwitterService(TwitterProp):
         session_utils.load_session(self.page)
         self.reload()
 
-    def load_page(self):
-        self.page.goto(global_config["url"])
-        self.page.wait_for_load_state("domcontentloaded")
-        logger_config.debug("Precaution wait after load...", seconds=5)
-
     def _get_actions(self):
-        actions = ["reply"]
+        actions = ["reply", "like", "quote","post"]
         random.shuffle(actions)
         return actions
 

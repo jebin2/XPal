@@ -17,6 +17,11 @@ class TwitterProp:
 
 		return is_valid_post
 
+	def load_page(self):
+		self.page.goto(global_config["url"])
+		self.page.wait_for_load_state("domcontentloaded")
+		logger_config.debug("Precaution wait after load...", seconds=5)
+
 	def reload(self):
 		self.page.reload()
 		self.page.wait_for_load_state("domcontentloaded")
@@ -37,3 +42,10 @@ class TwitterProp:
 			pass
 
 		return None, None
+
+	def go_back(self):
+		x_utils.click(self.page, global_config["back_selector"])
+		self.page.wait_for_load_state("domcontentloaded")
+		logger_config.debug("Precaution wait after load...", seconds=2)
+		if "https://x.com/home" not in self.page.url:
+			self.load_page()

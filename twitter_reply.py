@@ -26,19 +26,19 @@ class TwitterReply(TwitterProp):
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) div div div')
 		self.page.wait_for_load_state("domcontentloaded")
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {reply_queryselector}')
-		element = self.page.query_selector(global_config["disable_warning_selector"])
+		element = self.page.query_selector(global_config["reply_editor_selector"])
 		if element:
-			x_utils.click(self.page, global_config["disable_warning_selector"])
-			# To remove popup
-			self.page.keyboard.press("Escape")
-			self.page.keyboard.press("Escape")
-		else:
 			textbox = self.page.locator(global_config["reply_editor_selector"])
 			textbox.type(reply)
 			textbox.type(" ")
 			x_utils.click(self.page, global_config["reply_tweet_selector"])
-			x_utils.click(self.page, global_config["back_selector"])
-			self.page.wait_for_load_state("domcontentloaded")
+		else:
+			x_utils.click(self.page, global_config["disable_warning_selector"])
+			# To remove popup
+			self.page.keyboard.press("Escape")
+			self.page.keyboard.press("Escape")
+
+		self.go_back()
 
 	def start(self):
 		count = 0
