@@ -60,21 +60,23 @@ def download_video(url):
     return None
 
 def get_new_post(page, old_post=[]):
+    obj = {
+        "old_post": old_post,
+        "channel_name": global_config['channel_name']
+    }
     return page.evaluate(
         """
-        (oldPost) => {
+        (obj) => {
             function isElementInViewport(element) {
                 const rect = element.getBoundingClientRect();
                 const windowHeight = window.innerHeight || document.documentElement.clientHeight;
                 const windowWidth = window.innerWidth || document.documentElement.clientWidth;
-                
-                // Check if element is hidden via CSS
+
                 const styles = window.getComputedStyle(element);
-                if (styles.display === 'none' || styles.visibility === 'hidden' || styles.opacity === '0') {
+                if (styles.display === 'none' || styles.visibility === 'hidden' || styles.opacity === '0' || rect.width === 0 || rect.height === 0) {
                     return false;
                 }
-                
-                // Element is considered visible if it's in viewport
+
                 return (
                     rect.top <= windowHeight &&
                     rect.bottom >= 0 &&
@@ -83,56 +85,47 @@ def get_new_post(page, old_post=[]):
                 );
             }
 
-            let main = document.getElementsByTagName("main")[0];
-            let home_timeline;
-            for (let div of main.querySelectorAll("div")) {
-                if (div.ariaLabel === "Home timeline") {
-                    home_timeline = div;
-                    break;
-                }
-            }
             let articles = [];
             let postLimit = 20;  // Max posts to check
 
-            while(postLimit > 0) {
-                for (post of home_timeline.querySelectorAll("article")) {
-                    // Check if the post is visible in viewport
-                    const isVisible = isElementInViewport(post);
-                    
-                    postLimit--;
-                    if (postLimit <= 0) {
+            for (let post of document.querySelectorAll("main div[aria-label='Home timeline'] article")) {
+                if (postLimit <= 0) break;
+
+                const isVisible = isElementInViewport(post);
+                if (!isVisible) continue; // Skip if not visible
+
+                let shouldSkip = false;
+                let divs = post.querySelectorAll('div[data-testid]');
+                for (let div of divs) {
+                    if (div.getAttribute('data-testid')?.toLowerCase() === ("useravatar-container-" + obj.channel_name).toLowerCase()) {
+                        console.log("ignore logged-in account");
+                        shouldSkip = true;
                         break;
                     }
-
-                    // Scroll the post into view if it's not visible
-                    if (!isVisible) {
-                        // post.scrollIntoView({ behavior: "smooth" });
-                        // Give some time for the scroll animation to complete
-                        continue;  // Skip this iteration and check again in next loop
-                    }
-
-                    const outerHTML = post.outerHTML;
-                    const match = outerHTML.match(/\/status\/(.*?)"/);
-                    if (match) {
-                        console.log(match[1]);
-                        if (oldPost.includes(match[1])) {
-                            continue;
-                        }
-                        articles.push({
-                            "visible": isVisible ? 1 : 0,  // Add visibility status to output
-                            "html": outerHTML,
-                            "id": match[1]
-                        });
-                        postLimit = -1;
-                        break;  // Return immediately after finding a new post
-                    }
                 }
-            }
+                if (shouldSkip) continue;
 
+                const outerHTML = post.outerHTML;
+                const match = outerHTML.match(/\/status\/(.*?)"/);
+                if (match) {
+                    console.log(match[1]);
+                    if (obj.old_post.includes(match[1])) {
+                        continue;
+                    }
+                    articles.push({
+                        "visible": isVisible ? 1 : 0,  // Add visibility status to output
+                        "html": outerHTML,
+                        "id": match[1]
+                    });
+                    postLimit = -1;
+                    break;  // Return immediately after finding a new post
+                }
+                postLimit--;
+            }
             return articles;
         }
         """,
-        old_post
+        obj
     )
 
 def simulate_human_scroll(page, duration_seconds):
