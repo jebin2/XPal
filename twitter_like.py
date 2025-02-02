@@ -55,7 +55,7 @@ class TwitterLike(TwitterProp):
 
 				if self.valid(user_prompt, file_path):
 					count += 1
-					_, _, model_responses = google_ai_studio.process(global_config["html_parser_sp"], user_prompt, file_path=file_path, mime_type=mime_type)
+					_, _, model_responses = google_ai_studio.process(global_config["html_parser_sp"], user_prompt, file_path=file_path)
 					response = json.loads(model_responses[0]["parts"][0])
 					self._like(like_queryselector, article[0]["id"])
 			else:

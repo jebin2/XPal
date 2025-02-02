@@ -77,7 +77,7 @@ class TwitterReply(TwitterProp):
 
 				if self.valid(user_prompt, file_path):
 					count += 1
-					_, _, model_responses = google_ai_studio.process(random.choice(reply_sp), user_prompt, file_path=file_path, mime_type=mime_type)
+					_, _, model_responses = google_ai_studio.process(random.choice(reply_sp), user_prompt, file_path=file_path)
 					response = json.loads(model_responses[0]["parts"][0])
 					self._reply(reply_queryselector, response["reply"], article[0]["id"])
 			else:
