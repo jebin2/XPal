@@ -25,6 +25,7 @@ class TwitterQuote(TwitterProp):
 	def _quote(self, repost_queryselector, reply, id):
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) div div div')
 		self.page.wait_for_load_state("domcontentloaded")
+		logger_config.debug("Wait to read post", seconds=5)
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {repost_queryselector}')
 		x_utils.click(self.page, f"{global_config['quote_tweet_selector']}")
 		textbox = self.page.locator(global_config["reply_editor_selector"])
