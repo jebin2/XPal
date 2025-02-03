@@ -43,12 +43,15 @@ def wait_for_files_active(files):
 
 def handle_quota_exceeded():
     """Switches API key if quota is exceeded."""
+    global USED_API_KEYS
     for key in global_config["google_ai_studio_API_KEY"].split(","):
         if key not in USED_API_KEYS:
             logger_config.info(f'Current Key: {key}')
             genai.configure(api_key=key)
             USED_API_KEYS.add(key)
             return
+
+    USED_API_KEYS = set()
 
 def process(system_instruction, user_prompt="", file_path=None, chat_session=None, delete_files=False, response_schema=None):
     if len(USED_API_KEYS) == 0:
