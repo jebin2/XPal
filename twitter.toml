@@ -6,8 +6,8 @@ base_path = "whoa"
 wait_second = 10
 reply_count = 5
 like_count = 5
-quote_count = 1
-post_count = 1
+quote_count = 2
+post_count = 2
 html_parser_sp = """You are a Twitter/X post HTML parser. Your task is to extract description, media_link, reply_queryselector, repost_path and like_queryselector information from HTML content of Twitter/X posts and return it in a structured JSON format.
 
 Input:
