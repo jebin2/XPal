@@ -30,14 +30,15 @@ class TwitterProp:
 		self.page.keyboard.press("Escape")
 		self.page.keyboard.press("Escape")
 
-	def download(self, media_link):
+	def download(self, media_link, tweet_id):
 		try:
-			if media_link.endswith(".mp4"):
-				file_path = x_utils.download_video(media_link)
-				return "video/mp4", file_path
-			else:
+			if media_link.endswith(".jpg") or media_link.endswith(".png"):
 				file_path = x_utils.download_image(media_link)
 				return "image/jpeg", file_path
+			else:
+				file_path = x_utils.download_video(tweet_id)
+				return "video/mp4", file_path
+
 		except:
 			pass
 

@@ -71,7 +71,7 @@ class TwitterReply(TwitterProp):
 				user_prompt = response["description"]
 				media_link = response["media_link"]
 				reply_queryselector = response["reply_queryselector"]
-				mime_type, file_path = self.download(media_link)
+				mime_type, file_path = self.download(media_link, article[0]["id"])
 				
 				old_post.append(article[0]["id"])
 

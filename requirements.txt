@@ -2,3 +2,4 @@ playwright
 toml
 requests
 google-generativeai
+yt-dlp

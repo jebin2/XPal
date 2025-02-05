@@ -4,6 +4,8 @@ import common
 from local_global import global_config
 import time
 import random
+import subprocess
+from cookie_converter import convert_playwright_to_netscape
 
 def click(page, name, timeout=1000 * 60 * 2):
 	logger_config.debug(f"Checking availability for {name}")
@@ -42,22 +44,28 @@ def download_image(url):
         logger_config.error(f"Failed to download the image: {e}")
         return None
 
-def download_video(url):
+def download_video(tweet_id):
     try:
-        response = requests.get(url, stream=True)
-        path = f"{global_config['base_path']}/video.mp4"
+        path = "whoa/video.mp4"
+        cookie = "whoa/cookies.txt"
         common.remove_file(path)
-        if response.status_code == 200:
-            with open(path, "wb") as file:
-                for chunk in response.iter_content(chunk_size=1024):
-                    file.write(chunk)
+        common.remove_file(cookie)
+        convert_playwright_to_netscape(f"whoa/twitter_{global_config['channel_name']}.json", cookie)
+        command = [
+            "yt-dlp",
+            "--cookies", cookie,
+            f"{global_config['url']}/{global_config['channel_name']}/status/{tweet_id}",
+            "-o", path
+        ]
 
-            logger_config.success(f"Video downloaded as {path}")
-            return path
-    except:
-        pass
+        subprocess.run(command)
 
-    return None
+        logger_config.success(f"Video downloaded as {path}")
+        return path
+
+    except Exception as e:
+        logger_config.error(f"Failed to download the video: {e}")
+        return None
 
 def get_new_post(page, old_post=[]):
     obj = {
