@@ -25,14 +25,43 @@ class TwitterQuote(TwitterProp):
 	def _quote(self, repost_queryselector, reply, id):
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) div div div')
 		self.page.wait_for_load_state("domcontentloaded")
-		logger_config.debug("Wait to read post", seconds=5)
 		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {repost_queryselector}')
-		x_utils.click(self.page, f"{global_config['quote_tweet_selector']}")
-		textbox = self.page.locator(global_config["reply_editor_selector"])
-		textbox.type(reply)
-		textbox.type(" ")
-		x_utils.click(self.page, global_config["reply_tweet_selector"])
+		
+		# Evaluate with more detailed feedback
+		result = self.page.evaluate("""() => {
+			try {
+				const menuItems = document.querySelectorAll("#layers [role='menu'] a");
+				if (menuItems.length > 2) {
+					return { success: false, error: 'Unknown menu items found' };
+				}
+				
+				const retweetButton = document.querySelector("#layers [role='menu'] [data-testid='retweetConfirm']");
+				if (!retweetButton) {
+					return { success: false, error: 'Retweet button not found' };
+				}
+				
+				const quoteButton = retweetButton.nextElementSibling;
+				if (!quoteButton) {
+					return { success: false, error: 'Quote button not found' };
+				}
+				
+				quoteButton.click();
+				return { success: true };
+			} catch (err) {
+				return { success: false, error: err.message };
+			}
+		}""")
+
+		if result.get('success'):
+			logger_config.debug("Wait to read post", seconds=5)
+			
+			textbox = self.page.locator(global_config["reply_editor_selector"])
+			textbox.type(reply)
+			textbox.type(" ")
+			x_utils.click(self.page, global_config["reply_tweet_selector"])
+			
 		self.go_back()
+
 
 	def start(self):
 		count = 0

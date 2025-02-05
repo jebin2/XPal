@@ -104,13 +104,12 @@ def process(system_instruction, user_prompt="", file_path=None, chat_session=Non
             user_payloads[-1]["parts"].append(uploaded_file)
 
         response = None
-        for _ in range(len(global_config["google_ai_studio_API_KEY"].split(","))):
-            try:
-                response = chat_session.send_message(content=user_payloads[-1])
-                break
-            except ResourceExhausted:
-                logger_config.warning("Quota exceeded, switching API key...")
-                handle_quota_exceeded()
+        # for _ in range(len(global_config["google_ai_studio_API_KEY"].split(","))):
+        try:
+            response = chat_session.send_message(content=user_payloads[-1])
+        except ResourceExhausted:
+            logger_config.warning("Quota exceeded, switching API key...")
+            handle_quota_exceeded()
 
         logger_config.debug(f"Model response: {response}")
         model_responses.append({"role": "model", "parts": [response.text]})

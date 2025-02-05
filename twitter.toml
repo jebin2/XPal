@@ -252,8 +252,6 @@ IMPORTANT NOTES:
 - Consider if the content deserves broader amplification
 - Always return valid JSON in the specified format"""
 
-quote_tweet_selector = "#layers [role=\"menu\"] a"
-
 post_textarea_selector = "main .DraftEditor-editorContainer div[data-testid=\"tweetTextarea_0\"]"
 post_tweet_selector = "main [data-testid=\"tweetButtonInline\"]"
 post_add_media = "main [type=\"file\"]"
