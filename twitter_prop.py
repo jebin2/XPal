@@ -32,12 +32,12 @@ class TwitterProp:
 
 	def download(self, media_link, tweet_id):
 		try:
-			if media_link.endswith(".jpg") or media_link.endswith(".png"):
-				file_path = x_utils.download_image(media_link)
-				return "image/jpeg", file_path
-			else:
-				file_path = x_utils.download_video(tweet_id)
+			file_path = x_utils.download_video(tweet_id)
+			if file_path:
 				return "video/mp4", file_path
+
+			file_path = x_utils.download_image(media_link)
+			return "image/jpeg", file_path
 
 		except:
 			pass

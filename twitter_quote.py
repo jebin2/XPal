@@ -94,7 +94,7 @@ class TwitterQuote(TwitterProp):
 				user_prompt = response["description"]
 				media_link = response["media_link"]
 				repost_queryselector = response["repost_queryselector"]
-				mime_type, file_path = self.download(media_link)
+				mime_type, file_path = self.download(media_link, article[0]["id"])
 				
 				old_post.append(article[0]["id"])
 
