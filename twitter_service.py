@@ -1,7 +1,7 @@
 from local_global import global_config, load_toml
 import session_utils
 import random
-import logger_config
+from custom_logger import logger_config
 from twitter_reply import TwitterReply
 from twitter_like import TwitterLike
 from twitter_quote import TwitterQuote

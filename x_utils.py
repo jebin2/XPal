@@ -1,4 +1,4 @@
-import logger_config
+from custom_logger import logger_config
 import requests
 import common
 from local_global import global_config

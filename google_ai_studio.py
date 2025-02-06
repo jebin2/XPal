@@ -1,4 +1,4 @@
-import logger_config
+from custom_logger import logger_config
 import google.generativeai as genai
 from google.api_core.exceptions import ResourceExhausted
 from local_global import global_config
@@ -73,8 +73,7 @@ def process(system_instruction, user_prompt="", file_path=None, chat_session=Non
 
     model = genai.GenerativeModel(
         model_name="gemini-2.0-flash-exp",
-        # model_name="gemini-2.0-flash-exp",
-        # model_name="gemini-1.5-flash",
+        # model_name="gemini-2.0-flash",
         generation_config=generation_config,
         system_instruction=system_instruction,
     )

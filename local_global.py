@@ -1,6 +1,6 @@
 import toml
 import json
-import logger_config
+from custom_logger import logger_config
 
 global_config = {}
 

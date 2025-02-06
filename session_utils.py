@@ -1,7 +1,7 @@
 import json
 import common
 from local_global import global_config
-import logger_config
+from custom_logger import logger_config
 
 def save_session(page):
 	if not common.file_exists(f"{global_config['base_path']}/twitter_{global_config['channel_name']}.json"):

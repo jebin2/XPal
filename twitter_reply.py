@@ -1,7 +1,7 @@
 from local_global import global_config
 import x_utils
 import google_ai_studio
-import logger_config
+from custom_logger import logger_config
 import json
 import random
 from twitter_prop import TwitterProp

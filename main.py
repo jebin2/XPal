@@ -1,5 +1,5 @@
 from playwright.sync_api import sync_playwright
-import logger_config
+from custom_logger import logger_config
 from local_global import global_config
 import random
 from twitter_service import TwitterService

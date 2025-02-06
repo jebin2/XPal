@@ -3,7 +3,7 @@ import os
 import shutil
 import string
 from datetime import datetime, timedelta
-import logger_config
+from custom_logger import logger_config
 import secrets
 import hashlib
 import random
