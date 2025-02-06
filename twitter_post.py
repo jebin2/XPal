@@ -1,6 +1,6 @@
 from local_global import global_config
 import x_utils
-import google_ai_studio
+from gemiwrap import GeminiWrapper
 from custom_logger import logger_config
 import json
 import random
@@ -15,8 +15,9 @@ class TwitterPost(TwitterProp):
 		if super().valid(user_prompt, file_path):
 			is_valid_post = True
 			if global_config["reply_decider_sp"]:
-				_, _, model_responses = google_ai_studio.process(global_config["reply_decider_sp"], user_prompt, file_path=file_path)
-				response = json.loads(model_responses[0]["parts"][0])
+				geminiWrapper = GeminiWrapper(system_instruction=global_config["reply_decider_sp"])
+				text = geminiWrapper.send_message(user_prompt, file_path=file_path)
+				response = json.loads(text)
 				is_valid_post = True if response["reply"].lower() == "yes" else False
 
 			return is_valid_post
@@ -53,8 +54,9 @@ class TwitterPost(TwitterProp):
 				file_path = random.choice([file for file in common.list_files_recursive(global_config["media_path"]) if file.endswith(".png") or file.endswith(".jpg") or file.endswith(".mkv") or file.endswith(".mp4")])
 
 				count += 1
-				_, _, model_responses = google_ai_studio.process(global_config["post_sp"], "", file_path=file_path)
-				response = json.loads(model_responses[0]["parts"][0])
+				geminiWrapper = GeminiWrapper(system_instruction=global_config["post_sp"])
+				text = geminiWrapper.send_message("", file_path=file_path)
+				response = json.loads(text)
 				self._post(response["post"], file_path)
 				if global_config["delete_media_path_after_post"] == "yes":
 					common.remove_file(file_path)

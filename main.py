@@ -5,6 +5,8 @@ import random
 from twitter_service import TwitterService
 import common
 import x_utils
+import os
+from dotenv import load_dotenv
 
 def new_page(p):
 	browser = p.chromium.launch(executable_path='/usr/bin/brave-browser', headless=False, args=["--disable-blink-features=AutomationControlled"])
@@ -16,10 +18,13 @@ def new_page(p):
 	return browser, context.new_page()
 
 def start():
+	if os.path.exists(".env"):
+		load_dotenv()
+
 	with sync_playwright() as p:
 		common.create_directory(global_config['base_path'])
 		while True:
-			channel_names = global_config["channel_names"].split(",")
+			channel_names = os.getenv("channel_names", "").split(",")
 			random.shuffle(channel_names)
 			for channel in channel_names:
 				browser, page = new_page(p)

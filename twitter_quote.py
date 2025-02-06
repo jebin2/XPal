@@ -1,6 +1,6 @@
 from local_global import global_config
 import x_utils
-import google_ai_studio
+from gemiwrap import GeminiWrapper
 from custom_logger import logger_config
 import json
 import random
@@ -14,8 +14,9 @@ class TwitterQuote(TwitterProp):
 		if super().valid(user_prompt, file_path):
 			is_valid_post = True
 			if global_config["quote_decider_sp"]:
-				_, _, model_responses = google_ai_studio.process(global_config["quote_decider_sp"], user_prompt, file_path=file_path)
-				response = json.loads(model_responses[0]["parts"][0])
+				geminiWrapper = GeminiWrapper(system_instruction=global_config["quote_decider_sp"])
+				text = geminiWrapper.send_message(user_prompt, file_path=file_path)
+				response = json.loads(text)
 				is_valid_post = True if response["quote"].lower() == "yes" else False
 
 			return is_valid_post
@@ -89,8 +90,9 @@ class TwitterQuote(TwitterProp):
 			logger_config.info(f"Getting new post, old_post:: {old_post}")
 			article = x_utils.get_new_post(self.page, old_post)
 			if len(article) > 0:
-				_, _, model_responses = google_ai_studio.process(global_config["html_parser_sp"], article[0]["html"])
-				response = json.loads(model_responses[0]["parts"][0])
+				geminiWrapper = GeminiWrapper(system_instruction=global_config["html_parser_sp"])
+				text = geminiWrapper.send_message(article[0]["html"])
+				response = json.loads(text)
 				user_prompt = response["description"]
 				media_link = response["media_link"]
 				repost_queryselector = response["repost_queryselector"]
@@ -100,8 +102,9 @@ class TwitterQuote(TwitterProp):
 
 				if self.valid(user_prompt, file_path):
 					count += 1
-					_, _, model_responses = google_ai_studio.process(random.choice(reply_sp), user_prompt, file_path=file_path)
-					response = json.loads(model_responses[0]["parts"][0])
+					geminiWrapper = GeminiWrapper(system_instruction=random.choice(reply_sp))
+					text = geminiWrapper.send_message(user_prompt, file_path=file_path)
+					response = json.loads(text)
 					self._quote(repost_queryselector, response["reply"], article[0]["id"])
 			else:
 				self.reload()

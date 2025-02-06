@@ -1,6 +1,6 @@
 from local_global import global_config
 import json
-import google_ai_studio
+from gemiwrap import GeminiWrapper
 from custom_logger import logger_config
 import x_utils
 
@@ -11,8 +11,9 @@ class TwitterProp:
 	def valid(self, user_prompt, file_path):
 		is_valid_post = True
 		if global_config["specifc_post_validation_sp"]:
-			_, _, model_responses = google_ai_studio.process(global_config["specifc_post_validation_sp"], user_prompt, file_path=file_path)
-			response = json.loads(model_responses[0]["parts"][0])
+			geminiWrapper = GeminiWrapper(system_instruction=global_config["specifc_post_validation_sp"])
+			text = geminiWrapper.send_message(user_prompt, file_path=file_path)
+			response = json.loads(text)
 			is_valid_post = True if response[global_config["specifc_post_key"]].lower() == "yes" else False
 
 		return is_valid_post

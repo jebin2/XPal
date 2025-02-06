@@ -1,3 +1,4 @@
 whoa/
+.venv/
 .env
 __pycache__/
