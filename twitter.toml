@@ -15,11 +15,11 @@ Input:
 Output:
 - You must return a JSON object with the following structure:
 {
-    "description": "",
-    "media_link": "",
-    "reply_queryselector": "",
-    "repost_queryselector": "",
-    "like_queryselector": ""
+	"description": "",
+	"media_link": "",
+	"reply_queryselector": "",
+	"repost_queryselector": "",
+	"like_queryselector": ""
 }
 """
 reply_sp_0 = """Tweet Reply Generator - Multilingual to English
@@ -67,8 +67,8 @@ Prohibited Elements
 
 Example Format:
 {
-    "original_language": "<Language detected>",
-    "reply": "<Authentic English Reply>"
+	"original_language": "<Language detected>",
+	"reply": "<Authentic English Reply>"
 }
 Remember: Each reply should feel like it comes from a real person who has genuinely understood the tweet in its original language and is responding naturally in English."""
 reply_sp_1 = """Tweet Reply Generator - Multilingual to English Natural Human Voice
@@ -156,7 +156,7 @@ DECISION RULES:
 OUTPUT FORMAT:
 You must respond in valid JSON format:
 {
-    "reply": "<yes/no>"
+	"reply": "<yes/no>"
 }
 IMPORTANT NOTES:
 - Focus on whether a reply would genuinely benefit the conversation
@@ -199,7 +199,7 @@ DECISION CRITERIA:
 OUTPUT FORMAT:
 You must respond in valid JSON format:
 {
-    "like": "<yes/no>"
+	"like": "<yes/no>"
 }
 
 IMPORTANT NOTES:
@@ -242,7 +242,7 @@ DECISION RULES:
 OUTPUT FORMAT:
 You must respond in valid JSON format:
 {
-    "quote": "<yes/no>"
+	"quote": "<yes/no>"
 }
 
 IMPORTANT NOTES:

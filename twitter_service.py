@@ -10,33 +10,33 @@ from twitter_prop import TwitterProp
 import traceback
 
 class TwitterService(TwitterProp):
-    action_map = {
-        "reply": TwitterReply,
-        "like": TwitterLike,
-        "quote": TwitterQuote,
-        "post": TwitterPost
+	action_map = {
+		"reply": TwitterReply,
+		"like": TwitterLike,
+		"quote": TwitterQuote,
+		"post": TwitterPost
 	}
 
-    def __init__(self, page, channel_name=None):
-        super().__init__(page)
-        self.channel_name = channel_name
-        load_toml(self.channel_name)
-        self.load_page()
-        session_utils.load_session(self.page)
-        self.reload()
+	def __init__(self, page, channel_name=None):
+		super().__init__(page)
+		self.channel_name = channel_name
+		load_toml(self.channel_name)
+		self.load_page()
+		session_utils.load_session(self.page)
+		self.reload()
 
-    def _get_actions(self):
-        actions = ["reply", "like", "quote","post"]
-        random.shuffle(actions)
-        return actions
+	def _get_actions(self):
+		actions = ["reply", "like", "quote","post"]
+		random.shuffle(actions)
+		return actions
 
-    def play(self):
-        for type in self._get_actions():
-            try:
-                action = self.action_map.get(type)(self.page)
-                action.start()
-            except Exception as e:
-                logger_config.error(f"Error occurred for {self.channel_name} :: {type} {str(e)} \m {traceback.format_exc()}")
+	def play(self):
+		for type in self._get_actions():
+			try:
+				action = self.action_map.get(type)(self.page)
+				action.start()
+			except Exception as e:
+				logger_config.error(f"Error occurred for {self.channel_name} :: {type} {str(e)} \m {traceback.format_exc()}")
 
-        return None
+		return None
 
