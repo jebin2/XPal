@@ -16,8 +16,8 @@ class TwitterPost(TwitterProp):
 			is_valid_post = True
 			if global_config["reply_decider_sp"]:
 				geminiWrapper = GeminiWrapper(system_instruction=global_config["reply_decider_sp"])
-				text = geminiWrapper.send_message(user_prompt, file_path=file_path)
-				response = json.loads(text)
+				model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
+				response = json.loads(model_responses[0])
 				is_valid_post = True if response["reply"].lower() == "yes" else False
 
 			return is_valid_post
@@ -55,8 +55,8 @@ class TwitterPost(TwitterProp):
 
 				count += 1
 				geminiWrapper = GeminiWrapper(system_instruction=global_config["post_sp"])
-				text = geminiWrapper.send_message("", file_path=file_path)
-				response = json.loads(text)
+				model_responses = geminiWrapper.send_message("", file_path=file_path)
+				response = json.loads(model_responses[0])
 				self._post(response["post"], file_path)
 				if global_config["delete_media_path_after_post"] == "yes":
 					common.remove_file(file_path)

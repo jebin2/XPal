@@ -15,8 +15,8 @@ class TwitterReply(TwitterProp):
 			is_valid_post = True
 			if global_config["reply_decider_sp"]:
 				geminiWrapper = GeminiWrapper(system_instruction=global_config["reply_decider_sp"])
-				text = geminiWrapper.send_message(user_prompt, file_path=file_path)
-				response = json.loads(text)
+				model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
+				response = json.loads(model_responses[0])
 				is_valid_post = True if response["reply"].lower() == "yes" else False
 
 			return is_valid_post
@@ -68,8 +68,8 @@ class TwitterReply(TwitterProp):
 			article = x_utils.get_new_post(self.page, old_post)
 			if len(article) > 0:
 				geminiWrapper = GeminiWrapper(system_instruction=global_config["html_parser_sp"])
-				text = geminiWrapper.send_message(article[0]["html"])
-				response = json.loads(text)
+				model_responses = geminiWrapper.send_message(article[0]["html"])
+				response = json.loads(model_responses[0])
 				user_prompt = response["description"]
 				media_link = response["media_link"]
 				reply_queryselector = response["reply_queryselector"]
@@ -80,8 +80,8 @@ class TwitterReply(TwitterProp):
 				if self.valid(user_prompt, file_path):
 					count += 1
 					geminiWrapper = GeminiWrapper(system_instruction=random.choice(reply_sp))
-					text = geminiWrapper.send_message(user_prompt, file_path=file_path)
-					response = json.loads(text)
+					model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
+					response = json.loads(model_responses[0])
 					self._reply(reply_queryselector, response["reply"], article[0]["id"])
 			else:
 				self.reload()

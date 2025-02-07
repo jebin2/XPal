@@ -12,8 +12,8 @@ class TwitterProp:
 		is_valid_post = True
 		if global_config["specifc_post_validation_sp"]:
 			geminiWrapper = GeminiWrapper(system_instruction=global_config["specifc_post_validation_sp"])
-			text = geminiWrapper.send_message(user_prompt, file_path=file_path)
-			response = json.loads(text)
+			model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
+			response = json.loads(model_responses[0])
 			is_valid_post = True if response[global_config["specifc_post_key"]].lower() == "yes" else False
 
 		return is_valid_post

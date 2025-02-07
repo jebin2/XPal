@@ -14,8 +14,8 @@ class TwitterLike(TwitterProp):
 			is_valid_post = True
 			if global_config["like_decider_sp"]:
 				geminiWrapper = GeminiWrapper(system_instruction=global_config["like_decider_sp"])
-				text = geminiWrapper.send_message(user_prompt, file_path=file_path)
-				response = json.loads(text)
+				model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
+				response = json.loads(model_responses[0])
 				is_valid_post = True if response["like"].lower() == "yes" else False
 
 			return is_valid_post
@@ -46,8 +46,8 @@ class TwitterLike(TwitterProp):
 			article = x_utils.get_new_post(self.page, old_post)
 			if len(article) > 0:
 				geminiWrapper = GeminiWrapper(system_instruction=global_config["html_parser_sp"])
-				text = geminiWrapper.send_message(article[0]["html"])
-				response = json.loads(text)
+				model_responses = geminiWrapper.send_message(article[0]["html"])
+				response = json.loads(model_responses[0])
 				user_prompt = response["description"]
 				media_link = response["media_link"]
 				like_queryselector = response["like_queryselector"]
