@@ -41,7 +41,7 @@ def download_image(url):
 		return path
 
 	except Exception as e:
-		logger_config.error(f"Failed to download the image: {e}")
+		logger_config.warning(f"Failed to download the image: {e}")
 
 	return None
 
@@ -92,10 +92,10 @@ def download_video(tweet_id):
 			logger_config.success(f"Video downloaded as {path}")
 			return path
 		else:
-			logger_config.error(f"Video download command failed, but yt-dlp did not raise an exception.")
+			logger_config.warning(f"Video download command failed, but yt-dlp did not raise an exception.")
 			return None
 	except Exception as e:
-		logger_config.error(f"Failed to download the video: {e}")
+		logger_config.warning(f"Failed to download the video: {e}")
 		return None
 
 def get_new_post(page, old_post=[]):
