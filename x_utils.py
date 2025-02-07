@@ -61,13 +61,13 @@ def download_video(tweet_id):
 		result = subprocess.run(command_metadata, capture_output=True, text=True)
 
 		if result.returncode != 0:
-			logger_config.error(f"yt-dlp metadata command failed: {result.stderr}")
+			logger_config.warning(f"yt-dlp metadata command failed: {result.stderr}")
 			return None
 
 		try:
 			metadata = json.loads(result.stdout)
 		except json.JSONDecodeError:
-			logger_config.error(f"Failed to parse JSON metadata: {result.stdout}")
+			logger_config.warning(f"Failed to parse JSON metadata: {result.stdout}")
 			return None
 
 		is_live = metadata.get('is_live', False)
