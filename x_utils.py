@@ -5,6 +5,7 @@ from local_global import global_config
 import time
 import random
 import subprocess
+import json
 
 def click(page, name, timeout=1000 * 60 * 2):
 	logger_config.debug(f"Checking availability for {name}")
@@ -49,6 +50,46 @@ def download_video(tweet_id):
         path = "whoa/video.mp4"
         cookie = "whoa/cookies.txt"
         common.remove_file(path)
+
+        command_metadata = [
+            "yt-dlp",
+            "--cookies", cookie,
+            "--dump-json",
+            f"{global_config['url']}/{global_config['channel_name']}/status/{tweet_id}",
+        ]
+
+        result = subprocess.run(command_metadata, capture_output=True, text=True)
+
+        if result.returncode != 0:
+            logger_config.error(f"yt-dlp metadata command failed: {result.stderr}")
+            return None
+
+        try:
+            metadata = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            logger_config.error(f"Failed to parse JSON metadata: {result.stdout}")
+            return None
+
+        is_live = metadata.get('is_live', False)
+        webpage_url_basename = metadata.get('webpage_url_basename', '').lower() # Get in lowercase for safety.
+
+        if is_live:
+            logger_config.info(f"Video {tweet_id} is a live stream. Skipping download.")
+            return None
+
+        if "live" in webpage_url_basename or "watch" not in webpage_url_basename:
+            logger_config.info(f"Video {tweet_id} appears to be a live stream (or not a regular video).  Skipping. Basename: {webpage_url_basename}")
+            return None
+
+        # This prevents downloads from unexpected sources.
+        # expected_channel_id = global_config.get('channel_id') # Get the channel_id
+        # if expected_channel_id:
+        #     uploader_id = metadata.get('uploader_id')
+        #     channel_id = metadata.get('channel_id')
+        #     if uploader_id != expected_channel_id and channel_id != expected_channel_id:
+        #          logger_config.warning(f"Video {tweet_id} is from a different channel/uploader. Skipping.  Expected: {expected_channel_id}, Got uploader: {uploader_id}, channel: {channel_id}")
+        #          return None
+
         command = [
             "yt-dlp",
             "--cookies", cookie,
@@ -60,11 +101,12 @@ def download_video(tweet_id):
         if common.file_exists(path):
             logger_config.success(f"Video downloaded as {path}")
             return path
-
+        else:
+            logger_config.error(f"Video download command failed, but yt-dlp did not raise an exception.")
+            return None
     except Exception as e:
         logger_config.error(f"Failed to download the video: {e}")
-
-    return None
+        return None
 
 def get_new_post(page, old_post=[]):
     obj = {
