@@ -35,7 +35,7 @@ def start():
 				x_utils.simulate_human_scroll(page, 60)
 				browser.close()
 
-			logger_config.info("Wait 1 hour for next iteration.", seconds=30*60)
+			logger_config.info("Wait 10 minutes for next iteration.", seconds=10*60)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from local_global import global_config, load_toml
+from local_global import load_toml
 import session_utils
 import random
 from custom_logger import logger_config
