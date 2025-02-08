@@ -48,7 +48,7 @@ def download_image(url):
 def download_video(tweet_id):
 	try:
 		path = "whoa/video.mp4"
-		cookie = "whoa/cookies.txt"
+		cookie = "whoa/slidingbrain_cookies.txt"
 		common.remove_file(path)
 
 		command_metadata = [
@@ -82,7 +82,7 @@ def download_video(tweet_id):
 
 		command = [
 			"yt-dlp",
-			"--cookies-from-browser", "brave",
+			"--cookies", cookie,
 			f"{global_config['url']}/{global_config['channel_name']}/status/{tweet_id}",
 			"-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
 			"-o", path
