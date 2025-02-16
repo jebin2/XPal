@@ -1,7 +1,7 @@
 import toml
 import json
 from custom_logger import logger_config
-import os
+import common
 
 global_config = {}
 
@@ -11,7 +11,7 @@ def load_toml(channel_name=None):
 		global_config.update(toml_data)
 
 	if channel_name:
-		if not os.path.exists(f"{global_config['config_path']}/{channel_name}.toml"):
+		if not common.file_exists(f"{global_config['config_path']}/{channel_name}.toml"):
 			content = f"""channel_name = "{channel_name}"
 """
 			with open(f"{global_config['config_path']}/{channel_name}.toml", 'w') as f:

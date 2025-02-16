@@ -6,6 +6,7 @@ import time
 import random
 import subprocess
 import json
+import cookie_converter
 
 def click(page, name, timeout=1000 * 60 * 2):
 	logger_config.debug(f"Checking availability for {name}")
@@ -49,6 +50,9 @@ def download_video(tweet_id):
 	try:
 		path = "whoa/video.mp4"
 		cookie = "whoa/cookies.txt"
+		if not common.file_exists(cookie):
+			cookie_converter.convert_playwright_to_netscape(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", cookie)
+
 		common.remove_file(path)
 
 		command_metadata = [

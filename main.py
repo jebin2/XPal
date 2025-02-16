@@ -5,7 +5,6 @@ import random
 from twitter_service import TwitterService
 import common
 import x_utils
-import os
 from dotenv import load_dotenv
 from datetime import datetime, time as date_time
 
@@ -23,7 +22,7 @@ def new_page(p):
 	return browser, context.new_page()
 
 def start():
-	if os.path.exists(".env"):
+	if common.file_exists(".env"):
 		load_dotenv()
 
 	with sync_playwright() as p:
