@@ -16,10 +16,10 @@ A Python bot automating Twitter actions using Google AI Studio for content and a
 
 ## Configuration
 
-Uses TOML files: `twitter.toml` (base config), `[channel_name].toml` (channel overrides), `.private.toml` (sensitive keys).
+Uses TOML files: `twitter.toml` (base config), `[channel_name].toml` (channel overrides), `.env` (sensitive keys).
 
 - **`twitter.toml`**: Base settings, API keys, channel list, action counts, AI prompts, UI selectors
-- **`..env`**: Store `GEMINI_API_KEYS` API key
+- **`.env`**: Store `GEMINI_API_KEYS` API key and channel_names = list of channel name comma separated
 - **`[channel_name].toml`**: Channel-specific overrides for settings
 
 ## Setup Instructions
@@ -35,7 +35,7 @@ Uses TOML files: `twitter.toml` (base config), `[channel_name].toml` (channel ov
 
 3. **Configuration**:
    - Edit `twitter.toml` (settings, prompts)
-   - Set API key in `.private.toml` under base_path dir
+   - Set API key in `.env` under base_path dir
    - Create `[channel_name].toml` for channel-specific settings under base_path dir
 
 4. **Session Setup**: Run `python main.py`, manually login to Twitter in Brave browser within 90s. Cookies saved for reuse.
