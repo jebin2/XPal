@@ -7,6 +7,11 @@ import common
 import x_utils
 import os
 from dotenv import load_dotenv
+from datetime import datetime, time as date_time
+
+def is_time_run():
+	now = datetime.now().time()
+	return now < date_time(6, 00) or now > date_time(18, 00)
 
 def new_page(p):
 	browser = p.chromium.launch(executable_path='/usr/bin/brave-browser', headless=False, args=["--disable-blink-features=AutomationControlled"])
@@ -24,6 +29,10 @@ def start():
 	with sync_playwright() as p:
 		common.create_directory(global_config['base_path'])
 		while True:
+			# if not is_time_run():
+			# 	logger_config.info("its not time to run yet. will run between 6 PM and end at 6 AM", overwrite=True)
+			# 	continue
+
 			channel_names = os.getenv("channel_names", "").split(",")
 			random.shuffle(channel_names)
 			for channel in channel_names:

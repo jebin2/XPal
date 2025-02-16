@@ -370,3 +370,5 @@ Remember: Each tweet should feel like an organic, human response to the media, e
 disable_warning_selector = "button[data-testid=\"app-bar-close\"]"
 
 back_selector = "button[aria-label=\"Back\"]"
+
+main_home = "main [href=\"/home\"]"

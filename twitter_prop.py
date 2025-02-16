@@ -49,5 +49,6 @@ class TwitterProp:
 		x_utils.click(self.page, global_config["back_selector"])
 		self.page.wait_for_load_state("domcontentloaded")
 		logger_config.debug("Precaution wait after load...", seconds=2)
+		x_utils.click(global_config["main_home"])
 		if "https://x.com/home" not in self.page.url:
 			self.load_page()
