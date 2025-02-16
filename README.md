@@ -28,8 +28,10 @@ Uses TOML files: `twitter.toml` (base config), `[channel_name].toml` (channel ov
 
 2. **Installation**:
    ```bash
-   git clone <repository_url>
-   cd <repository_directory>
+   git clone https://github.com/jebin2/XPal.git
+   cd XPal
+   python3 -m venv .venv
+   source .venv/bin/activate
    pip install -r requirements.txt
    ```
 
