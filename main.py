@@ -27,7 +27,7 @@ def start():
 		load_dotenv()
 
 	with sync_playwright() as p:
-		common.create_directory(global_config['base_path'])
+		common.create_directory(global_config['config_path'])
 		while True:
 			# if not is_time_run():
 			# 	logger_config.info("its not time to run yet. will run between 6 PM and end at 6 AM", overwrite=True)

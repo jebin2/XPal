@@ -8,6 +8,7 @@ from twitter_quote import TwitterQuote
 from twitter_post import TwitterPost
 from twitter_prop import TwitterProp
 import traceback
+from local_global import global_config
 
 class TwitterService(TwitterProp):
 	action_map = {
@@ -26,7 +27,7 @@ class TwitterService(TwitterProp):
 		self.reload()
 
 	def _get_actions(self):
-		actions = ["reply", "like", "quote","post"]
+		actions = global_config["actions"].split(",")
 		random.shuffle(actions)
 		return actions
 

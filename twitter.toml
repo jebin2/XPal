@@ -1,6 +1,7 @@
 url = "https://x.com"
 # comma separated example "channelname1,channelname2"
-base_path = "whoa"
+actions = "reply,like,quote,post"
+config_path = "whoa"
 wait_second = 20
 reply_count = 5
 like_count = 5

@@ -18,13 +18,13 @@ A Python bot automating Twitter actions using Google AI Studio for content and a
 
 Uses TOML files: `twitter.toml` (base config), `[channel_name].toml` (channel overrides), `.env` (sensitive keys).
 
-- **`twitter.toml`**: Base settings, API keys, channel list, action counts, AI prompts, UI selectors
-- **`.env`**: Store `GEMINI_API_KEYS` API key and channel_names = list of channel name comma separated
-- **`[channel_name].toml`**: Channel-specific overrides for settings
+- **`twitter.toml`**: Base settings, action counts, AI prompts, UI selectors
+- **`.env`**: Store `GEMINI_API_KEYS` API key and `channel_names` = list of channel name comma separated
+- **`[channel_name].toml`**: Channel-specific overrides for settings it will create under `config_path`
 
 ## Setup Instructions
 
-1. **Prerequisites**: Python 3.7+, Brave Browser, Google AI Studio API Key, TOML library
+1. **Prerequisites**: Python 3.7+, Google AI Studio API Key
 
 2. **Installation**:
    ```bash
@@ -36,11 +36,11 @@ Uses TOML files: `twitter.toml` (base config), `[channel_name].toml` (channel ov
    ```
 
 3. **Configuration**:
-   - Edit `twitter.toml` (settings, prompts)
-   - Set API key in `.env` under base_path dir
-   - Create `[channel_name].toml` for channel-specific settings under base_path dir
+   - Edit `twitter.toml` (settings, prompts) under `config_path`
+   - Set API key in `.env`
+   - Create `[channel_name].toml` for channel-specific settings under `config_path` dir
 
-4. **Session Setup**: Run `python main.py`, manually login to Twitter in Brave browser within 90s. Cookies saved for reuse.
+4. **Session Setup**: Run `python main.py`, manually login to X first time ony. Cookies will be saved for reuse next time in channel_name.json `config_path`.
 
 ## Usage
 
@@ -54,15 +54,10 @@ Bot starts, loads config/session, performs actions (reply, like, quote, post) on
 
 ## Customization
 
-- **Action Counts**: `reply_count`, `like_count`, etc. in TOML
+- **Action Counts**: `reply_count`, `like_count`, `quote_count`, `post_count` etc. in TOML
 - **Wait Times**: `wait_second` in `twitter.toml`
 - **AI Prompts**: Customize `*_sp` prompts in TOML
-- **Channel Settings**: Use `[channel_name].toml` for specific settings
-- **Action Types**: Modify `_get_actions` in `twitter_service.py` to change action types
-
-
-## Disclaimer
-
-Use responsibly, comply with Twitter TOS, be aware of rate limits, UI changes may require selector updates. Session cookies are sensitive. `headless=False` for setup, consider `headless=True` for automation.
+- **Channel Settings**: Use `[channel_name].toml` for specific settings under `config_path`
+- **Action Types**: Modify `actions` in `twitter.toml` to change action types
 
 **Tweet Responsibly!**

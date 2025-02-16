@@ -31,7 +31,7 @@ def download_image(url):
 		response = requests.get(url, stream=True)
 		response.raise_for_status()
 
-		path = f"{global_config['base_path']}/image.{format}"
+		path = f"{global_config['config_path']}/image.{format}"
 		common.remove_file(path)
 
 		with open(path, "wb") as file:
@@ -48,7 +48,7 @@ def download_image(url):
 def download_video(tweet_id):
 	try:
 		path = "whoa/video.mp4"
-		cookie = "whoa/slidingbrain_cookies.txt"
+		cookie = "whoa/cookies.txt"
 		common.remove_file(path)
 
 		command_metadata = [

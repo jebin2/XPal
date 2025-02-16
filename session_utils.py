@@ -4,7 +4,7 @@ from local_global import global_config
 from custom_logger import logger_config
 
 def save_session(page):
-	if not common.file_exists(f"{global_config['base_path']}/twitter_{global_config['channel_name']}.json"):
+	if not common.file_exists(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json"):
 		page.evaluate("""
 			const overlay = document.createElement('div');
 			let timeLeft = 300;  // 300 seconds countdown
@@ -52,12 +52,12 @@ def save_session(page):
 
 		page.wait_for_selector(global_config["main_home"], timeout=1000 * 300)
 		cookies = page.context.cookies()
-		with open(f"{global_config['base_path']}/twitter_{global_config['channel_name']}.json", 'w') as f:
+		with open(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", 'w') as f:
 			json.dump(cookies, f)
 
 def load_session(page):
-	if common.file_exists(f"{global_config['base_path']}/twitter_{global_config['channel_name']}.json"):
-		with open(f"{global_config['base_path']}/twitter_{global_config['channel_name']}.json", 'r') as f:
+	if common.file_exists(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json"):
+		with open(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", 'r') as f:
 			cookies = json.load(f)
 			page.context.add_cookies(cookies)
 			return True
