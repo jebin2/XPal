@@ -38,6 +38,7 @@ class TwitterService(TwitterProp):
 				action.start()
 			except Exception as e:
 				logger_config.error(f"Error occurred for {self.channel_name} :: {type} {str(e)} \m {traceback.format_exc()}")
+				self.load_page()
 
 		return None
 

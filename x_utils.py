@@ -200,14 +200,14 @@ def simulate_human_scroll(page, duration_seconds):
 		if to_top:
 			# Rapid scroll to top with slightly varying speeds
 			for _ in range(10):  # Multiple quick scrolls
-				page.mouse.wheel(0, -800)
+				page.mouse.wheel(0, -random.randint(500, 800))
 				page.wait_for_timeout(random.randint(30, 50))
 			# Ensure we're at the top
 			page.evaluate("window.scrollTo(0, 0)")
 		else:
 			# Rapid scroll to bottom
 			for _ in range(10):  # Multiple quick scrolls
-				page.mouse.wheel(0, 800)
+				page.mouse.wheel(0, random.randint(500, 800))
 				page.wait_for_timeout(random.randint(30, 50))
 	
 	while time.time() - start_time < duration_seconds:

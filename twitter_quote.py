@@ -54,7 +54,7 @@ class TwitterQuote(TwitterProp):
 		}""")
 
 		if result.get('success'):
-			logger_config.debug("Wait to read post", seconds=5)
+			logger_config.debug("Wait to read post", seconds=random.randint(5, 8))
 			
 			textbox = self.page.locator(global_config["reply_editor_selector"])
 			textbox.type(reply)
