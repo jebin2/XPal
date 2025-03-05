@@ -323,6 +323,7 @@ You are a sophisticated tweet composer that analyzes provided media (images/vide
 
 ## Output Format
 {
+   "can_post": "<yes/no>",
    "post": "<post>",
 }
 

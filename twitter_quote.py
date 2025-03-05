@@ -24,45 +24,44 @@ class TwitterQuote(TwitterProp):
 		return False
 
 	def _quote(self, repost_queryselector, reply, id):
-		if len(reply) < 250:
-			x_utils.click(self.page, f'article:has(a[href*="{id}"]) div div div')
-			self.page.wait_for_load_state("domcontentloaded")
-			x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {repost_queryselector}')
-			
-			# Evaluate with more detailed feedback
-			result = self.page.evaluate("""() => {
-				try {
-					const menuItems = document.querySelectorAll("#layers [role='menu'] a");
-					if (menuItems.length > 2) {
-						return { success: false, error: 'Unknown menu items found' };
-					}
-					
-					const retweetButton = document.querySelector("#layers [role='menu'] [data-testid='retweetConfirm']");
-					if (!retweetButton) {
-						return { success: false, error: 'Retweet button not found' };
-					}
-					
-					const quoteButton = retweetButton.nextElementSibling;
-					if (!quoteButton) {
-						return { success: false, error: 'Quote button not found' };
-					}
-					
-					quoteButton.click();
-					return { success: true };
-				} catch (err) {
-					return { success: false, error: err.message };
+		x_utils.click(self.page, f'article:has(a[href*="{id}"]) div div div')
+		self.page.wait_for_load_state("domcontentloaded")
+		x_utils.click(self.page, f'article:has(a[href*="{id}"]) >> {repost_queryselector}')
+		
+		# Evaluate with more detailed feedback
+		result = self.page.evaluate("""() => {
+			try {
+				const menuItems = document.querySelectorAll("#layers [role='menu'] a");
+				if (menuItems.length > 2) {
+					return { success: false, error: 'Unknown menu items found' };
 				}
-			}""")
+				
+				const retweetButton = document.querySelector("#layers [role='menu'] [data-testid='retweetConfirm']");
+				if (!retweetButton) {
+					return { success: false, error: 'Retweet button not found' };
+				}
+				
+				const quoteButton = retweetButton.nextElementSibling;
+				if (!quoteButton) {
+					return { success: false, error: 'Quote button not found' };
+				}
+				
+				quoteButton.click();
+				return { success: true };
+			} catch (err) {
+				return { success: false, error: err.message };
+			}
+		}""")
 
-			if result.get('success'):
-				logger_config.debug("Wait to read post", seconds=random.randint(5, 8))
-				
-				textbox = self.page.locator(global_config["reply_editor_selector"])
-				textbox.type(reply)
-				textbox.type(" ")
-				x_utils.click(self.page, global_config["reply_tweet_selector"])
-				
-			self.go_back()
+		if result.get('success'):
+			logger_config.debug("Wait to read post", seconds=random.randint(5, 8))
+			
+			textbox = self.page.locator(global_config["reply_editor_selector"])
+			textbox.type(reply)
+			textbox.type(" ")
+			x_utils.click(self.page, global_config["reply_tweet_selector"])
+			
+		self.go_back()
 
 
 	def start(self):
@@ -106,6 +105,7 @@ class TwitterQuote(TwitterProp):
 					geminiWrapper = GeminiWrapper(system_instruction=random.choice(reply_sp))
 					model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
 					response = json.loads(model_responses[0])
-					self._quote(repost_queryselector, response["reply"], article[0]["id"])
+					if len(response["reply"]) < 250:
+						self._quote(repost_queryselector, response["reply"], article[0]["id"])
 			else:
 				self.reload()
