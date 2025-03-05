@@ -25,21 +25,22 @@ class TwitterPost(TwitterProp):
 		return False
 
 	def _post(self, post, file_path):
-		textbox = self.page.locator(global_config["post_textarea_selector"])
-		textbox.type(post)
-		textbox.type(" ")
+		if len(post) < 250:
+			textbox = self.page.locator(global_config["post_textarea_selector"])
+			textbox.type(post)
+			textbox.type(" ")
 
-		file_input = self.page.locator('input[type="file"]')
-		file_input.set_input_files(file_path)
+			file_input = self.page.locator('input[type="file"]')
+			file_input.set_input_files(file_path)
 
-		button_locator = self.page.locator(global_config["post_tweet_selector"])
-		button_locator.wait_for(state="visible", timeout=50000)
+			button_locator = self.page.locator(global_config["post_tweet_selector"])
+			button_locator.wait_for(state="visible", timeout=50000)
 
-		self.page.wait_for_timeout(1000)
-		while button_locator.is_disabled():
-			self.page.wait_for_timeout(100)
+			self.page.wait_for_timeout(2000)
+			# while button_locator.is_disabled():
+			# 	self.page.wait_for_timeout(100)
 
-		x_utils.click(self.page, global_config["post_tweet_selector"])
+			x_utils.click(self.page, global_config["post_tweet_selector"])
 
 	def start(self):
 		if global_config["media_path"]:

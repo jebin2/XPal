@@ -37,11 +37,15 @@ def start():
 			random.shuffle(channel_names)
 			for channel in channel_names:
 				browser, page = new_page(p)
-				twitterService = TwitterService(page, channel)
-				twitterService.play()
+				try:
+					twitterService = TwitterService(page, channel)
+					twitterService.play()
 
-				logger_config.info("60 sec scroll before next channel.")
-				x_utils.simulate_human_scroll(page, 60)
+					logger_config.info("60 sec scroll before next channel.")
+					x_utils.simulate_human_scroll(page, 60)
+				except Exception as e:
+					logger_config.warning(f"Error occurred: {e}")
+
 				browser.close()
 
 			logger_config.info("Wait 10 minutes for next iteration.", seconds=10*60)
