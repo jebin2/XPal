@@ -374,3 +374,5 @@ disable_warning_selector = "button[data-testid=\"app-bar-close\"]"
 back_selector = "button[aria-label=\"Back\"]"
 
 main_home = "main [href=\"/home\"] >> nth=0"
+
+post_decider_sp = ""

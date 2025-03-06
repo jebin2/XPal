@@ -14,11 +14,11 @@ class TwitterPost(TwitterProp):
 	def valid(self, user_prompt, file_path):
 		if super().valid(user_prompt, file_path):
 			is_valid_post = True
-			if global_config["reply_decider_sp"]:
-				geminiWrapper = GeminiWrapper(system_instruction=global_config["reply_decider_sp"])
-				model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
+			if global_config["post_decider_sp"]:
+				geminiWrapper = GeminiWrapper(system_instruction=global_config["post_decider_sp"])
+				model_responses = geminiWrapper.send_message("", file_path=file_path)
 				response = json.loads(model_responses[0])
-				is_valid_post = True if response["reply"].lower() == "yes" else False
+				is_valid_post = True if response["post"].lower() == "yes" else False
 
 			return is_valid_post
 
@@ -53,13 +53,12 @@ class TwitterPost(TwitterProp):
 					break
 
 				file_path = random.choice([file for file in common.list_files_recursive(global_config["media_path"]) if file.endswith(".png") or file.endswith(".jpg") or file.endswith(".mkv") or file.endswith(".mp4")])
-				file_path  = "/home/jebineinstein/git/CaptionCreator/media/testing/test_image.png"
 
 				count += 1
 				geminiWrapper = GeminiWrapper(system_instruction=global_config["post_sp"])
 				model_responses = geminiWrapper.send_message("", file_path=file_path)
 				response = json.loads(model_responses[0])
-				if response["can_post"] == "yes" and len(response["post"]) < 250:
+				if response["can_post"] == "yes" and len(response["post"]) < 250 and self.valid(response["post"], file_path):
 					self._post(response["post"], file_path)
 					if global_config["delete_media_path_after_post"] == "yes":
 						common.remove_file(file_path)
