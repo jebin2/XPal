@@ -35,10 +35,7 @@ class TwitterPost(TwitterProp):
 		button_locator = self.page.locator(global_config["post_tweet_selector"])
 		button_locator.wait_for(state="visible", timeout=50000)
 
-		count = 50
-		while button_locator.is_disabled() and count > 0:
-			count -= 1
-			self.page.wait_for_timeout(1000)
+		self.page.wait_for_timeout(10000)
 
 		x_utils.click(self.page, global_config["post_tweet_selector"])
 
