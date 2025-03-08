@@ -49,7 +49,16 @@ class TwitterPost(TwitterProp):
 				if count > global_config["post_count"]:
 					break
 
-				file_path = random.choice([file for file in common.list_files_recursive(global_config["media_path"]) if file.endswith(".png") or file.endswith(".jpg") or file.endswith(".mkv") or file.endswith(".mp4")])
+				media_files = [
+					file for file in common.list_files_recursive(global_config["media_path"]) 
+					if file.endswith((".png", ".jpg", ".mkv", ".mp4"))
+				]
+
+				if not media_files:
+					return
+
+				file_path = random.choice(media_files)
+
 
 				count += 1
 				geminiWrapper = GeminiWrapper(system_instruction=global_config["post_sp"])
