@@ -56,6 +56,12 @@ class TwitterPost(TwitterProp):
 				model_responses = geminiWrapper.send_message("", file_path=file_path)
 				response = json.loads(model_responses[0])
 				if response["can_post"] == "yes" and len(response["post"]) < 250 and self.valid(response["post"], file_path):
-					self._post(response["post"], file_path)
+					meta_data = self.image_metadata(file_path)
+					new_post_content = response["post"]
+					if meta_data and "post" in meta_data:
+						if len(f"{new_post_content} {meta_data['post']}") <= 250:
+							new_post_content = f"{new_post_content} {meta_data['post']}"
+
+					self._post(new_post_content, file_path)
 					if global_config["delete_media_path_after_post"] == "yes":
 						common.remove_file(file_path)

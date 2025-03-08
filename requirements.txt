@@ -5,3 +5,4 @@ google-generativeai
 yt-dlp
 git+https://github.com/jebin2/custom_logger.git
 git+https://github.com/jebin2/gemiwrap.git
+pillow

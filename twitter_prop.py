@@ -3,6 +3,8 @@ import json
 from gemiwrap import GeminiWrapper
 from custom_logger import logger_config
 import x_utils
+import piexif
+from PIL import Image, PngImagePlugin
 
 class TwitterProp:
 	def __init__(self, page):
@@ -44,6 +46,22 @@ class TwitterProp:
 			pass
 
 		return None, None
+
+	def image_metadata(self, image):
+		try:
+			data = None
+			if image.endswith(".png"):
+				with Image.open(image) as img:
+					data = img.info.get("metadata")
+
+			elif image.endswith(".jpg"):
+				exif_data = piexif.load(image)
+				data = exif_data["0th"].get(piexif.ImageIFD.XPComment)
+
+			return json.loads(data)
+		except:
+			return None
+
 
 	def go_back(self):
 		x_utils.click(self.page, global_config["back_selector"])
