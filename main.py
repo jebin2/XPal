@@ -10,8 +10,14 @@ from datetime import datetime, time as date_time
 import os
 
 def is_time_run():
+	start_at = int(global_config['start_at']) # 18
+	end_at = int(global_config['end_at']) # 6
 	now = datetime.now().time()
-	return now < date_time(6, 00) or now > date_time(18, 00)
+	if now > date_time(start_at, 00) or now < date_time(end_at, 00):
+		return True
+
+	logger_config.info(f"its not time to run yet. will run between {start_at}:00 and end at {end_at}:00", overwrite=True)
+	return False
 
 def new_page(p):
 	browser = p.chromium.launch(executable_path='/usr/bin/brave-browser', headless=False, args=["--disable-blink-features=AutomationControlled"])
@@ -29,9 +35,8 @@ def start():
 	with sync_playwright() as p:
 		common.create_directory(global_config['config_path'])
 		while True:
-			# if not is_time_run():
-			# 	logger_config.info("its not time to run yet. will run between 6 PM and end at 6 AM", overwrite=True)
-			# 	continue
+			if not is_time_run():
+				continue
 
 			channel_names = os.getenv("channel_names", "").split(",")
 			random.shuffle(channel_names)
