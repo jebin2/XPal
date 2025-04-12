@@ -40,7 +40,8 @@ class TwitterProp:
 				return "video/mp4", file_path
 
 			file_path = x_utils.download_image(media_link)
-			return "image/jpeg", file_path
+			if file_path:
+				return "image/jpeg", file_path
 
 		except:
 			pass

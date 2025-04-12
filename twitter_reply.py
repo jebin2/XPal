@@ -76,6 +76,8 @@ class TwitterReply(TwitterProp):
 				mime_type, file_path = self.download(media_link, article[0]["id"])
 				
 				old_post.append(article[0]["id"])
+				if file_path is None and media_link.startswith("https://"):
+					continue
 
 				if self.valid(user_prompt, file_path):
 					count += 1
