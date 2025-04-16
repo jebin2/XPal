@@ -5,6 +5,7 @@ from custom_logger import logger_config
 import x_utils
 import piexif
 from PIL import Image, PngImagePlugin
+import common
 
 class TwitterProp:
 	def __init__(self, page):
@@ -36,11 +37,11 @@ class TwitterProp:
 	def download(self, media_link, tweet_id):
 		try:
 			file_path = x_utils.download_video(tweet_id)
-			if file_path:
+			if common.file_exists(file_path):
 				return "video/mp4", file_path
 
 			file_path = x_utils.download_image(media_link)
-			if file_path:
+			if common.file_exists(file_path):
 				return "image/jpeg", file_path
 
 		except:

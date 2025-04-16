@@ -99,7 +99,7 @@ class TwitterQuote(TwitterProp):
 				_, file_path = self.download(media_link, article[0]["id"])
 				
 				old_post.append(article[0]["id"])
-				if file_path is None and media_link.startswith("https://"):
+				if media_link and media_link is not None and file_path is None and media_link.startswith("https://"):
 					continue
 
 				if self.valid(user_prompt, file_path):
