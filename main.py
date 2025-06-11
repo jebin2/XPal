@@ -30,12 +30,16 @@ def new_context_and_page(browser: Browser) -> tuple[BrowserContext | None, Page 
 	context = None
 	page = None
 	try:
+		from minimize_active_window import save_active_window, minimize_active_window, restore_previous_focus
+		save_active_window()
 		context = browser.new_context(
 			locale="en-US",
 			viewport={"width": 1366, "height": 768}
 			# Consider adding user_agent override if needed
 		)
 		page = context.new_page()
+		minimize_active_window()
+		restore_previous_focus()
 		return context, page
 	except Exception as e:
 		logger_config.error(f"Failed to create new context/page: {e}")

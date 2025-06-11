@@ -6,6 +6,8 @@ import json
 import random
 from twitter_prop import TwitterProp
 import common
+import os
+import remove_metadata
 
 class TwitterPost(TwitterProp):
 	def __init__(self, page):
@@ -25,6 +27,7 @@ class TwitterPost(TwitterProp):
 		return False
 
 	def _post(self, post, file_path):
+		file_path = remove_metadata.clean_media_file(file_path)
 		textbox = self.page.locator(global_config["post_textarea_selector"])
 		textbox.type(post)
 		textbox.type(" ")
@@ -74,3 +77,6 @@ class TwitterPost(TwitterProp):
 					self._post(new_post_content, file_path)
 					if global_config["delete_media_path_after_post"] == "yes":
 						common.remove_file(file_path)
+						root, ext = os.path.splitext(file_path)
+						clean_path = f"{root}_clean{ext}"
+						common.remove_file(clean_path)
