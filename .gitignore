@@ -2,3 +2,7 @@ whoa/
 .venv/
 .env
 __pycache__/
+prev_window_handle.txt
+temp.py
+tempOutput/
+venv/
