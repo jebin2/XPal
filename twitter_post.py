@@ -1,6 +1,6 @@
 from local_global import global_config
 import x_utils
-from gemiwrap import GeminiWrapper
+from gemini_config import pre_model_wrapper
 from custom_logger import logger_config
 import json
 import random
@@ -17,7 +17,7 @@ class TwitterPost(TwitterProp):
 		if super().valid(user_prompt, file_path):
 			is_valid_post = True
 			if global_config["post_decider_sp"]:
-				geminiWrapper = GeminiWrapper(system_instruction=global_config["post_decider_sp"], delete_files=True)
+				geminiWrapper = pre_model_wrapper(system_instruction=global_config["post_decider_sp"], delete_files=True)
 				model_responses = geminiWrapper.send_message("", file_path=file_path)
 				response = json.loads(model_responses[0])
 				is_valid_post = True if response["post"].lower() == "yes" else False
@@ -64,7 +64,7 @@ class TwitterPost(TwitterProp):
 
 
 				count += 1
-				geminiWrapper = GeminiWrapper(system_instruction=global_config["post_sp"], delete_files=True)
+				geminiWrapper =pre_model_wrapper(system_instruction=global_config["post_sp"], delete_files=True)
 				model_responses = geminiWrapper.send_message("", file_path=file_path)
 				response = json.loads(model_responses[0])
 				if response["can_post"] == "yes" and len(response["post"]) < 250 and self.valid(response["post"], file_path):

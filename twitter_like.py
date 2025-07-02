@@ -2,7 +2,7 @@ from twitter_prop import TwitterProp
 from local_global import global_config
 import json
 from custom_logger import logger_config
-from gemiwrap import GeminiWrapper
+from gemini_config import pre_model_wrapper
 import x_utils
 
 class TwitterLike(TwitterProp):
@@ -13,7 +13,7 @@ class TwitterLike(TwitterProp):
 		if super().valid(user_prompt, file_path):
 			is_valid_post = True
 			if global_config["like_decider_sp"]:
-				geminiWrapper = GeminiWrapper(system_instruction=global_config["like_decider_sp"], delete_files=True)
+				geminiWrapper = pre_model_wrapper(system_instruction=global_config["like_decider_sp"], delete_files=True)
 				model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
 				response = json.loads(model_responses[0])
 				is_valid_post = True if response["like"].lower() == "yes" else False
@@ -45,7 +45,7 @@ class TwitterLike(TwitterProp):
 			logger_config.info(f"Getting new post, old_post:: {old_post}")
 			article = x_utils.get_new_post(self.page, old_post)
 			if len(article) > 0:
-				geminiWrapper = GeminiWrapper(system_instruction=global_config["html_parser_sp"], delete_files=True)
+				geminiWrapper = pre_model_wrapper(system_instruction=global_config["html_parser_sp"], delete_files=True)
 				model_responses = geminiWrapper.send_message(article[0]["html"])
 				response = json.loads(model_responses[0])
 				user_prompt = response["description"]
