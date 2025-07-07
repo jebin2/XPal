@@ -62,23 +62,24 @@ def initial_setup():
 	logger_config.info("Configuration directory ensured.")
 
 def get_chrome_neko_url():
-    try:
-        # Call curl to get debugger JSON
-        result = subprocess.run(
-            ["curl", "-s", "http://localhost:9223/json/version"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=2  # seconds
-        )
-        if result.returncode == 0:
-            json_data = json.loads(result.stdout.decode())
-            ws_url = json_data.get("webSocketDebuggerUrl", None)
-            if ws_url:
-                logger_config.success(f"✅ Found running Chrome debugger: {ws_url}")
-                return ws_url
-    except Exception as e:
-        logger_config.error(f"⚠️ Error checking Chrome debugger: {e}")
-    return None
+	try:
+		# Call curl to get debugger JSON
+		result = subprocess.run(
+			["curl", "-s", "http://localhost:9223/json/version"],
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE,
+			timeout=2  # seconds
+		)
+		if result.returncode == 0:
+			json_data = json.loads(result.stdout.decode())
+			neko_url = json_data.get("webSocketDebuggerUrl", None)
+			if neko_url:
+				os.environ["neko_url"] = neko_url
+				logger_config.success(f"✅ Found running Chrome debugger: {neko_url}")
+				return neko_url
+	except Exception as e:
+		logger_config.error(f"⚠️ Error checking Chrome debugger: {e}")
+	return None
 
 def start():
 	import gc
