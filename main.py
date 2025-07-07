@@ -4,6 +4,8 @@ from local_global import global_config
 from dotenv import load_dotenv
 from datetime import datetime, time as date_time
 import os
+import subprocess
+import json
 
 def is_time_run():
 	try:
@@ -59,6 +61,25 @@ def initial_setup():
 	common.create_directory(global_config['config_path'])
 	logger_config.info("Configuration directory ensured.")
 
+def get_chrome_neko_url():
+    try:
+        # Call curl to get debugger JSON
+        result = subprocess.run(
+            ["curl", "-s", "http://localhost:9223/json/version"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=2  # seconds
+        )
+        if result.returncode == 0:
+            json_data = json.loads(result.stdout.decode())
+            ws_url = json_data.get("webSocketDebuggerUrl", None)
+            if ws_url:
+                logger_config.success(f"✅ Found running Chrome debugger: {ws_url}")
+                return ws_url
+    except Exception as e:
+        logger_config.error(f"⚠️ Error checking Chrome debugger: {e}")
+    return None
+
 def start():
 	import gc
 
@@ -83,17 +104,22 @@ def start():
 				logger_config.warning(f"Brave not found at {executable_path}. Trying default chromium.")
 				executable_path = None # Let Playwright find default
 
-			browser = playwright_instance.chromium.launch(
-				executable_path=executable_path,
-				headless=False,
-				args=[
-					"--disable-blink-features=AutomationControlled",
-					# "--no-sandbox", # Often needed in docker/linux environments
-					# "--disable-setuid-sandbox",
-					# "--disable-dev-shm-usage", # Helps in constrained environments
-					# "--disable-gpu" # Can sometimes reduce memory
-				]
-			)
+			neko_url = get_chrome_neko_url()
+			if neko_url:
+				browser = playwright_instance.chromium.connect_over_cdp(neko_url)
+				logger_config.success("using neko docker url")
+			else:
+				browser = playwright_instance.chromium.launch(
+					executable_path=executable_path,
+					headless=False,
+					args=[
+						"--disable-blink-features=AutomationControlled",
+						# "--no-sandbox", # Often needed in docker/linux environments
+						# "--disable-setuid-sandbox",
+						# "--disable-dev-shm-usage", # Helps in constrained environments
+						# "--disable-gpu" # Can sometimes reduce memory
+					]
+				)
 			logger_config.success("Browser launched successfully.")
 
 			channel_names_str = os.getenv("channel_names", "")
@@ -129,7 +155,7 @@ def start():
 						logger_config.success(f"--- Finished channel: {channel} ---")
 
 					except Exception as e:
-						logger_config.error(f"Error processing channel '{channel}': {e}", exc_info=True)
+						logger_config.error(f"Error processing channel '{channel}': {e}")
 						# Optional: Take screenshot on error
 						# if page:
 						#	 try: page.screenshot(path=f"error_{channel}_{datetime.now():%Y%m%d_%H%M%S}.png")
@@ -145,7 +171,7 @@ def start():
 						gc.collect()
 
 		except Exception as outer_e:
-			logger_config.error(f"Critical error during run cycle setup or browser operation: {outer_e}", exc_info=True)
+			logger_config.error(f"Critical error during run cycle setup or browser operation: {outer_e}")
 		finally:
 			if browser:
 				try:
