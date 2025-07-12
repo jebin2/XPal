@@ -57,6 +57,7 @@ def download_video(tweet_id):
 
 		command_metadata = [
 			"yt-dlp",
+			"--extractor-args", "generic:impersonate=firefox",
 			"--cookies", cookie,
 			"--dump-json",
 			f"{global_config['url']}/{global_config['channel_name']}/status/{tweet_id}",
@@ -86,6 +87,7 @@ def download_video(tweet_id):
 
 		command = [
 			"yt-dlp",
+			"--extractor-args", "generic:impersonate=firefox",
 			"--cookies", cookie,
 			f"{global_config['url']}/{global_config['channel_name']}/status/{tweet_id}",
 			"-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",

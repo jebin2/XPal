@@ -60,7 +60,9 @@ class TwitterPost(TwitterProp):
 				if not media_files:
 					return
 
-				file_path = random.choice(media_files)
+				media_files.sort(key=os.path.getmtime, reverse=True)
+
+				file_path = random.choice(media_files[:10])
 
 
 				count += 1
