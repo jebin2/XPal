@@ -3,8 +3,7 @@ from local_global import global_config
 from dotenv import load_dotenv
 from datetime import datetime, time as date_time
 import os
-import subprocess
-import json
+from browser_manager.browser_config import BrowserConfig
 from browser_manager import BrowserManager
 
 def is_time_run():
@@ -67,7 +66,9 @@ def start():
 
 				for channel in channel_names:
 					logger_config.info(f"--- Starting channel: {channel} ---")
-					with BrowserManager() as page:
+					config = BrowserConfig()
+					config.docker_name = "xpal"
+					with BrowserManager(config) as page:
 						try:
 							twitterService = TwitterService(page, channel)
 							twitterService.play()
@@ -78,12 +79,6 @@ def start():
 
 						except Exception as e:
 							logger_config.error(f"Error processing channel '{channel}': {e}")
-						finally:
-							logger_config.debug(f"Closing context and page for channel {channel}")
-							if page:
-								try: page.close()
-								except Exception as page_close_err: logger_config.warning(f"Error closing page for {channel}: {page_close_err}")
-							gc.collect()
 
 		except Exception as outer_e:
 			logger_config.error(f"Critical error during run cycle setup or browser operation: {outer_e}")
