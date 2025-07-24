@@ -45,6 +45,7 @@ class TwitterPost(TwitterProp):
 	def start(self):
 		if global_config["media_path"]:
 			count = 0
+			next_is_video = True  # Start with video first
 
 			while True:
 				logger_config.info(f'{global_config["wait_second"]} sec scroll')
@@ -62,8 +63,24 @@ class TwitterPost(TwitterProp):
 
 				media_files.sort(key=os.path.getmtime, reverse=True)
 
-				file_path = random.choice(media_files[:10])
+				# Separate videos and images
+				videos = [f for f in media_files if f.endswith((".mkv", ".mp4"))]
+				images = [f for f in media_files if f.endswith((".png", ".jpg"))]
 
+				# Pick video or image alternately
+				if next_is_video and videos:
+					file_path = random.choice(videos[:10])
+				elif not next_is_video and images:
+					file_path = random.choice(images[:10])
+				elif videos:  # fallback to video if no images
+					file_path = random.choice(videos[:10])
+				elif images:  # fallback to image if no videos
+					file_path = random.choice(images[:10])
+				else:
+					return  # No media left
+
+				# Toggle for next iteration
+				next_is_video = not next_is_video
 
 				count += 1
 				geminiWrapper =pre_model_wrapper(system_instruction=global_config["post_sp"], delete_files=True)

@@ -84,13 +84,8 @@ def remove_file(file_path, retry=True):
     try:
         # Check if the file exists
         if os.path.exists(file_path):
-            # Remove the file
-            os.remove(file_path)
-            import shlex
-            os.system(f"rm -f {shlex.quote(file_path)}\"")
+            Path(file_path).unlink()
             logger_config.success(f"{file_path} has been removed successfully.")
-        else:
-            logger_config.debug(f"{file_path} does not exist.")
     except Exception as e:
         logger_config.warning(f"Error occurred while trying to remove the file: {e}")
         if retry:
@@ -131,9 +126,9 @@ def get_date(when=0):
     sub_day_str = sub_day.strftime('%Y-%m-%d')    
     return sub_day_str
 
-def generate_random_string_from_input(input_string, length=10):
+def generate_random_string_from_input(input_string, length=16):
     # Hash the input string to get a consistent value
-    hash_object = hashlib.md5(input_string.encode())
+    hash_object = hashlib.sha256(input_string.encode())
     hashed_string = hash_object.hexdigest()
 
     # Use the hash to seed the random number generator
@@ -155,6 +150,6 @@ def rename_file(current_name, new_name):
 
 def copy(source, dest):
     try:
-        subprocess.run(["cp", source, dest], check=True)
+        shutil.copy2(source, dest)
     except Exception as e:
         logger_config.error(f"An error occurred: {e}")
