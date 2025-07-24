@@ -68,24 +68,24 @@ def start():
 					logger_config.info(f"--- Starting channel: {channel} ---")
 					config = BrowserConfig()
 					config.docker_name = "xpal"
-					with BrowserManager(config) as page:
-						try:
+					try:
+						with BrowserManager(config) as page:
 							twitterService = TwitterService(page, channel)
 							twitterService.play()
 
 							logger_config.info(f"Simulating scroll for {channel}...")
 							x_utils.simulate_human_scroll(page, 60)
-							logger_config.success(f"--- Finished channel: {channel} ---")
+							logger_config.success(f"--- Finished channel: {channel} ---", seconds=60)
 
-						except Exception as e:
-							logger_config.error(f"Error processing channel '{channel}': {e}")
+					except Exception as e:
+						logger_config.error(f"Error processing channel '{channel}': {e}")
 
 		except Exception as outer_e:
 			logger_config.error(f"Critical error during run cycle setup or browser operation: {outer_e}")
 		finally:
 			gc.collect()
 
-		wait_seconds = 10 * 60
+		wait_seconds = 1 * 60
 		logger_config.info(f"Run cycle finished. Waiting {wait_seconds // 60} minutes before next time check.", seconds=wait_seconds)
 
 
