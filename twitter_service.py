@@ -23,13 +23,22 @@ class TwitterService(TwitterProp):
 		self.channel_name = channel_name
 		load_toml(self.channel_name)
 		self.load_page()
-		session_utils.load_session(self.page)
+		session_utils.load_session(self.page, self.did_login)
 		self.reload()
 
 	def _get_actions(self):
 		actions = global_config["actions"].split(",")
 		random.shuffle(actions)
 		return actions
+
+	def did_login(self):
+		try:
+			locator = self.page.locator(global_config["post_textarea_selector"])
+			return locator.is_visible()
+		except Exception as e:
+			print(e)
+
+		return False
 
 	def play(self):
 		for type in self._get_actions():

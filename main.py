@@ -5,6 +5,7 @@ from datetime import datetime, time as date_time
 import os
 from browser_manager.browser_config import BrowserConfig
 from browser_manager import BrowserManager
+import traceback
 
 def is_time_run():
 	try:
@@ -68,17 +69,21 @@ def start():
 					logger_config.info(f"--- Starting channel: {channel} ---")
 					config = BrowserConfig()
 					config.docker_name = "xpal"
+					config.user_data_dir = os.path.abspath(f"{global_config['config_path']}/{channel}")
+					os.makedirs(config.user_data_dir, exist_ok=True)
 					try:
 						with BrowserManager(config) as page:
 							twitterService = TwitterService(page, channel)
-							twitterService.play()
+							if twitterService.did_login():
+								twitterService.play()
 
-							logger_config.info(f"Simulating scroll for {channel}...")
-							x_utils.simulate_human_scroll(page, 60)
-							logger_config.success(f"--- Finished channel: {channel} ---", seconds=60)
+								logger_config.info(f"Simulating scroll for {channel}...")
+								x_utils.simulate_human_scroll(page, 60)
+								logger_config.success(f"--- Finished channel: {channel} ---", seconds=60)
+							else: logger_config.warning(f"--- Not logged in: {channel} ---")
 
 					except Exception as e:
-						logger_config.error(f"Error processing channel '{channel}': {e}")
+						logger_config.error(f"Error processing channel '{channel}': {e} {traceback.format_exc()}")
 
 		except Exception as outer_e:
 			logger_config.error(f"Critical error during run cycle setup or browser operation: {outer_e}")

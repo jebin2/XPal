@@ -2,8 +2,9 @@ import json
 import common
 from local_global import global_config
 
-def save_session(page):
-	if not common.file_exists(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json"):
+def save_session(page, validator):
+	# if not common.file_exists(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json"):
+	if not validator():
 		page.evaluate("""
 			const overlay = document.createElement('div');
 			let timeLeft = 300;  // 300 seconds countdown
@@ -49,17 +50,21 @@ def save_session(page):
 			}, 1000);  // Update every second
 """)
 
-		page.wait_for_selector(global_config["main_home"], timeout=1000 * 300)
-		cookies = page.context.cookies()
-		with open(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", 'w') as f:
-			json.dump(cookies, f)
+		while not validator():
+			if validator():
+				break
+		# cookies = page.context.cookies()
+		# with open(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", 'w') as f:
+		# 	json.dump(cookies, f)
 
-def load_session(page):
-	if common.file_exists(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json"):
-		with open(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", 'r') as f:
-			cookies = json.load(f)
-			page.context.add_cookies(cookies)
-			return True
+def load_session(page, validator):
+	# if common.file_exists(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json"):
+	# 	with open(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", 'r') as f:
+	# 		cookies = json.load(f)
+	# 		page.context.add_cookies(cookies)
+	# 		return True
+	if validator():
+		return True
 	else:
-		save_session(page)
-		return load_session(page)
+		save_session(page, validator)
+		return load_session(page, validator)
