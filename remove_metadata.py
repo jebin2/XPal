@@ -146,7 +146,7 @@ def clean_media_file(input_path):
         print(f"[!] File not found: {input_path}")
         return
     
-    filename, ext = os.path.splitext(input_path)
+    filename, ext = os.path.splitext(os.path.basename(input_path))
     ext = ext.lower()
     import common
     temp_path = "tempOutput"
@@ -155,7 +155,7 @@ def clean_media_file(input_path):
     output_path = f"{temp_path}/{filename}_clean{ext}"
 
     print(f"[i] Input: {os.path.basename(input_path)}")
-    print(f"[i] Output: {os.path.basename(output_path)}")
+    print(f"[i] Output: {output_path}")
     
     # Process based on file type
     if ext in [".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".webp"]:
