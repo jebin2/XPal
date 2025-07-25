@@ -1,5 +1,5 @@
 from local_global import global_config
-import json
+import json_repair
 from gemini_config import pre_model_wrapper
 from custom_logger import logger_config
 import x_utils
@@ -16,7 +16,7 @@ class TwitterProp:
 		if global_config["specifc_post_validation_sp"]:
 			geminiWrapper = pre_model_wrapper(system_instruction=global_config["specifc_post_validation_sp"], delete_files=True)
 			model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
-			response = json.loads(model_responses[0])
+			response = json_repair.loads(model_responses[0])
 			is_valid_post = True if response[global_config["specifc_post_key"]].lower() == "yes" else False
 
 		return is_valid_post
@@ -60,7 +60,7 @@ class TwitterProp:
 				exif_data = piexif.load(image)
 				data = exif_data["0th"].get(piexif.ImageIFD.XPComment)
 
-			return json.loads(data)
+			return json_repair.loads(data)
 		except:
 			return None
 

@@ -4,6 +4,7 @@ import json
 from custom_logger import logger_config
 from gemini_config import pre_model_wrapper
 import x_utils
+import json_repair
 
 class TwitterLike(TwitterProp):
 	def __init__(self, page):
@@ -15,7 +16,7 @@ class TwitterLike(TwitterProp):
 			if global_config["like_decider_sp"]:
 				geminiWrapper = pre_model_wrapper(system_instruction=global_config["like_decider_sp"], delete_files=True)
 				model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
-				response = json.loads(model_responses[0])
+				response = json_repair.loads(model_responses[0])
 				is_valid_post = True if response["like"].lower() == "yes" else False
 
 			return is_valid_post
@@ -47,7 +48,7 @@ class TwitterLike(TwitterProp):
 			if len(article) > 0:
 				geminiWrapper = pre_model_wrapper(system_instruction=global_config["html_parser_sp"], delete_files=True)
 				model_responses = geminiWrapper.send_message(article[0]["html"])
-				response = json.loads(model_responses[0])
+				response = json_repair.loads(model_responses[0])
 				user_prompt = response["description"]
 				media_link = response["media_link"]
 				like_queryselector = response["like_queryselector"]

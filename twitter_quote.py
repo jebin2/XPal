@@ -2,7 +2,7 @@ from local_global import global_config
 import x_utils
 from gemini_config import pre_model_wrapper
 from custom_logger import logger_config
-import json
+import json_repair
 import random
 from twitter_prop import TwitterProp
 
@@ -16,7 +16,7 @@ class TwitterQuote(TwitterProp):
 			if global_config["quote_decider_sp"]:
 				geminiWrapper = pre_model_wrapper(system_instruction=global_config["quote_decider_sp"], delete_files=True)
 				model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
-				response = json.loads(model_responses[0])
+				response = json_repair.loads(model_responses[0])
 				is_valid_post = True if response["quote"].lower() == "yes" else False
 
 			return is_valid_post
@@ -92,7 +92,7 @@ class TwitterQuote(TwitterProp):
 			if len(article) > 0:
 				geminiWrapper = pre_model_wrapper(system_instruction=global_config["html_parser_sp"], delete_files=True)
 				model_responses = geminiWrapper.send_message(article[0]["html"])
-				response = json.loads(model_responses[0])
+				response = json_repair.loads(model_responses[0])
 				user_prompt = response["description"]
 				media_link = response["media_link"]
 				repost_queryselector = response["repost_queryselector"]
@@ -106,7 +106,7 @@ class TwitterQuote(TwitterProp):
 					count += 1
 					geminiWrapper = pre_model_wrapper(system_instruction=random.choice(reply_sp), delete_files=True)
 					model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
-					response = json.loads(model_responses[0])
+					response = json_repair.loads(model_responses[0])
 					if len(response["reply"]) < 250:
 						self._quote(repost_queryselector, response["reply"], article[0]["id"])
 			else:

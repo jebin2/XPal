@@ -7,6 +7,7 @@ import random
 import subprocess
 import json
 import cookie_converter
+import json_repair
 
 def click(page, name, timeout=1000 * 60 * 2):
 	logger_config.debug(f"Checking availability for {name}")
@@ -70,7 +71,7 @@ def download_video(tweet_id):
 			return None
 
 		try:
-			metadata = json.loads(result.stdout)
+			metadata = json_repair.loads(result.stdout)
 		except json.JSONDecodeError:
 			logger_config.warning(f"Failed to parse JSON metadata: {result.stdout}")
 			return None

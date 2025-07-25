@@ -7,3 +7,4 @@ git+https://github.com/jebin2/custom_logger.git
 git+https://github.com/jebin2/gemiwrap.git
 git+https://github.com/jebin2/browser_manager.git
 pillow
+json_repair
