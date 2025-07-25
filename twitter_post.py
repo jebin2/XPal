@@ -96,6 +96,3 @@ class TwitterPost(TwitterProp):
 					self._post(new_post_content, file_path)
 					if global_config["delete_media_path_after_post"] == "yes":
 						common.remove_file(file_path)
-						root, ext = os.path.splitext(file_path)
-						clean_path = f"{root}_clean{ext}"
-						common.remove_file(clean_path)

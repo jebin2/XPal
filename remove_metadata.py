@@ -2,7 +2,7 @@ import os
 import subprocess
 from PIL import Image
 from PIL.ExifTags import TAGS
-import shutil
+from pathlib import Path
 
 def remove_image_metadata(image_path, output_path):
     try:
@@ -134,7 +134,7 @@ def verify_video_metadata_removal(video_path):
     except:
         print("[i] Could not verify metadata removal (ffprobe not available)")
 
-def clean_media_file(input_path, preserve_format=True):
+def clean_media_file(input_path):
     """
     Clean metadata from media files
     
@@ -148,16 +148,9 @@ def clean_media_file(input_path, preserve_format=True):
     
     filename, ext = os.path.splitext(input_path)
     ext = ext.lower()
-    
-    # Generate output filename
-    if preserve_format:
-        output_path = f"{filename}_clean{ext}"
-    else:
-        # Convert images to JPEG for maximum compatibility
-        if ext in [".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".webp"]:
-            output_path = f"{filename}_clean.jpg"
-        else:
-            output_path = f"{filename}_clean{ext}"
+    temp_path = "tempOutput"
+    Path(temp_path).mkdir(parents=True, exist_ok=True)
+    output_path = f"{temp_path}/{filename}_clean{ext}"
 
     print(f"[i] Input: {os.path.basename(input_path)}")
     print(f"[i] Output: {os.path.basename(output_path)}")
@@ -180,7 +173,7 @@ def clean_media_file(input_path, preserve_format=True):
 
     return output_path
 
-def batch_clean_directory(directory_path, preserve_format=True):
+def batch_clean_directory(directory_path):
     """Clean all supported media files in a directory"""
     supported_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.webp', 
                           '.mp4', '.mov', '.avi', '.mkv', '.wmv', '.flv', '.webm']
@@ -194,7 +187,7 @@ def batch_clean_directory(directory_path, preserve_format=True):
         if any(filename.lower().endswith(ext) for ext in supported_extensions):
             file_path = os.path.join(directory_path, filename)
             print(f"\n--- Processing {filename} ---")
-            clean_media_file(file_path, preserve_format)
+            clean_media_file(file_path)
             files_processed += 1
     
     print(f"\n[✓] Processed {files_processed} files")
@@ -205,10 +198,10 @@ if __name__ == "__main__":
     file_path = "media/ChatGPT Image Jun 11, 2025, 09_35_19 AM.png"
     
     if os.path.exists(file_path):
-        clean_media_file(file_path, preserve_format=True)
+        clean_media_file(file_path)
     else:
         print(f"[!] Example file not found: {file_path}")
         print("[i] Please update the file_path variable with your actual file path")
     
     # Batch processing example (uncomment to use)
-    # batch_clean_directory("media/", preserve_format=True)
+    # batch_clean_directory("media/")
