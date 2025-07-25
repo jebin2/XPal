@@ -66,6 +66,10 @@ def start():
 				logger_config.info(f"Processing {len(channel_names)} channels: {', '.join(channel_names)}")
 
 				for channel in channel_names:
+					import common
+					temp_path = "tempOutput"
+					common.remove_directory(temp_path)
+					common.create_directory(temp_path)
 					logger_config.info(f"--- Starting channel: {channel} ---")
 					config = BrowserConfig()
 					config.docker_name = "xpal"

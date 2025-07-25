@@ -148,8 +148,10 @@ def clean_media_file(input_path):
     
     filename, ext = os.path.splitext(input_path)
     ext = ext.lower()
+    import common
     temp_path = "tempOutput"
-    Path(temp_path).mkdir(parents=True, exist_ok=True)
+    common.remove_directory(temp_path)
+    common.create_directory(temp_path)
     output_path = f"{temp_path}/{filename}_clean{ext}"
 
     print(f"[i] Input: {os.path.basename(input_path)}")
