@@ -243,3 +243,35 @@ def simulate_human_scroll(page, duration_seconds):
 			page.wait_for_selector('[data-testid="tweet"]', timeout=800)
 		except:
 			time.sleep(0.5)
+
+def extract_tweet_info(article_html: str) -> dict:
+	from bs4 import BeautifulSoup
+	soup = BeautifulSoup(article_html, 'html.parser')
+
+	tweet_data = {
+		"description": "",
+		"media_link": None,
+		"video_preview": None,
+		"reply_queryselector": "[data-testid='reply']",
+		"repost_queryselector": "[data-testid='retweet']",
+		"like_queryselector": "[data-testid='like']"
+	}
+
+	# 1. Extract tweet text (content inside <span> inside <div> with lang attr)
+	tweet_text_parts = soup.select('div[lang] span')
+	tweet_data["text"] = ' '.join(part.get_text(strip=True) for part in tweet_text_parts)
+
+	# 2. Extract images
+	image_tags = soup.select('img[src*="twimg.com/media"]')
+	tweet_data["images"] = [img['src'] for img in image_tags if 'src' in img.attrs]
+	if tweet_data["images"]:
+		tweet_data["images"] = tweet_data["images"][0]
+	else:
+		tweet_data["images"] = None
+
+	# 3. Extract video preview (Twitter often uses poster image from <video> or <img>)
+	video_preview_tag = soup.select_one('video, img[src*="video_thumb"]')
+	if video_preview_tag:
+		tweet_data["video_preview"] = video_preview_tag.get('poster') or video_preview_tag.get('src')
+
+	return tweet_data

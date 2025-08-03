@@ -13,6 +13,8 @@ class TwitterProp:
 
 	def valid(self, user_prompt, file_path):
 		is_valid_post = True
+		if not user_prompt and not file_path:
+			return False
 		if global_config["specifc_post_validation_sp"]:
 			geminiWrapper = pre_model_wrapper(system_instruction=global_config["specifc_post_validation_sp"], delete_files=True)
 			model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)

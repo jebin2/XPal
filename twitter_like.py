@@ -46,9 +46,10 @@ class TwitterLike(TwitterProp):
 			logger_config.info(f"Getting new post, old_post:: {old_post}")
 			article = x_utils.get_new_post(self.page, old_post)
 			if len(article) > 0:
-				geminiWrapper = pre_model_wrapper(system_instruction=global_config["html_parser_sp"], delete_files=True)
-				model_responses = geminiWrapper.send_message(article[0]["html"])
-				response = json_repair.loads(model_responses[0])
+				# geminiWrapper = pre_model_wrapper(system_instruction=global_config["html_parser_sp"], delete_files=True)
+				# model_responses = geminiWrapper.send_message(article[0]["html"])
+				# response = json_repair.loads(model_responses[0])
+				response = x_utils.extract_tweet_info(article[0]["html"])
 				user_prompt = response["description"]
 				media_link = response["media_link"]
 				like_queryselector = response["like_queryselector"]
