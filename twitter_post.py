@@ -10,16 +10,22 @@ import os
 import remove_metadata
 
 class TwitterPost(TwitterProp):
-	def __init__(self, page):
-		super().__init__(page)
+	
+	def __init__(self, browser_manager, page):
+		super().__init__(browser_manager, page)
 
-	def valid(self, user_prompt, file_path):
-		if super().valid(user_prompt, file_path):
+	def valid(self, user_prompt, file_path, mimetype=None):
+		if super().valid(user_prompt, file_path, mimetype):
 			is_valid_post = True
 			if global_config["post_decider_sp"]:
-				geminiWrapper = pre_model_wrapper(system_instruction=global_config["post_decider_sp"], delete_files=True)
-				model_responses = geminiWrapper.send_message("", file_path=file_path)
-				response = json_repair.loads(model_responses[0])
+				response = None
+				if mimetype == "image/jpeg" or not file_path:
+					response = x_utils.get_response_from_perplexity(self.browser_manager, global_config["post_decider_sp"], user_prompt, file_path)
+				if not response:
+					geminiWrapper = pre_model_wrapper(system_instruction=global_config["post_decider_sp"], delete_files=True)
+					model_responses = geminiWrapper.send_message("", file_path=file_path)
+					response = model_responses[0]
+				response = json_repair.loads(response)
 				is_valid_post = True if response["post"].lower() == "yes" else False
 
 			return is_valid_post
@@ -70,12 +76,16 @@ class TwitterPost(TwitterProp):
 				# Pick video or image alternately
 				if next_is_video and videos:
 					file_path = random.choice(videos[:10])
+					mimetype = "video/mp4"
 				elif not next_is_video and images:
 					file_path = random.choice(images[:10])
+					mimetype = "image/jpeg"
 				elif videos:  # fallback to video if no images
 					file_path = random.choice(videos[:10])
+					mimetype = "video/mp4"
 				elif images:  # fallback to image if no videos
 					file_path = random.choice(images[:10])
+					mimetype = "image/jpeg"
 				else:
 					return  # No media left
 
@@ -83,10 +93,15 @@ class TwitterPost(TwitterProp):
 				next_is_video = not next_is_video
 
 				count += 1
-				geminiWrapper =pre_model_wrapper(system_instruction=global_config["post_sp"], delete_files=True)
-				model_responses = geminiWrapper.send_message("", file_path=file_path)
-				response = json_repair.loads(model_responses[0])
-				if response["can_post"] == "yes" and len(response["post"]) < 250 and self.valid(response["post"], file_path):
+				response = None
+				if mimetype == "image/jpeg" or not file_path:
+					response = x_utils.get_response_from_perplexity(self.browser_manager, global_config["post_sp"], "", file_path)
+				if not response:
+					geminiWrapper = pre_model_wrapper(system_instruction=global_config["post_sp"], delete_files=True)
+					model_responses = geminiWrapper.send_message("", file_path=file_path)
+					response = model_responses[0]
+				response = json_repair.loads(response)
+				if response["can_post"] == "yes" and len(response["post"]) < 250 and self.valid(response["post"], file_path, mimetype):
 					meta_data = self.image_metadata(file_path)
 					new_post_content = response["post"]
 					if meta_data and "post" in meta_data:

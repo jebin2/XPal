@@ -8,17 +8,23 @@ from PIL import Image, PngImagePlugin
 import common
 
 class TwitterProp:
-	def __init__(self, page):
+	def __init__(self, browser_manager, page):
+		self.browser_manager = browser_manager
 		self.page = page
 
-	def valid(self, user_prompt, file_path):
+	def valid(self, user_prompt, file_path, mimetype=None):
 		is_valid_post = True
 		if not user_prompt and not file_path:
 			return False
 		if global_config["specifc_post_validation_sp"]:
-			geminiWrapper = pre_model_wrapper(system_instruction=global_config["specifc_post_validation_sp"], delete_files=True)
-			model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
-			response = json_repair.loads(model_responses[0])
+			response = None
+			if mimetype == "image/jpeg" or not file_path:
+				response = x_utils.get_response_from_perplexity(self.browser_manager, global_config["specifc_post_validation_sp"], user_prompt, file_path)
+			if not response:
+				geminiWrapper = pre_model_wrapper(system_instruction=global_config["specifc_post_validation_sp"], delete_files=True)
+				model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
+				response = model_responses[0]
+			response = json_repair.loads(response)
 			is_valid_post = True if response[global_config["specifc_post_key"]].lower() == "yes" else False
 
 		return is_valid_post

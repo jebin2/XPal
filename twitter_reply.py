@@ -7,16 +7,21 @@ import random
 from twitter_prop import TwitterProp
 
 class TwitterReply(TwitterProp):
-	def __init__(self, page):
-		super().__init__(page)
+	def __init__(self, browser_manager, page):
+		super().__init__(browser_manager, page)
 
-	def valid(self, user_prompt, file_path):
-		if super().valid(user_prompt, file_path):
+	def valid(self, user_prompt, file_path, mimetype=None):
+		if super().valid(user_prompt, file_path, mimetype):
 			is_valid_post = True
 			if global_config["reply_decider_sp"]:
-				geminiWrapper = pre_model_wrapper(system_instruction=global_config["reply_decider_sp"], delete_files=True)
-				model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
-				response = json_repair.loads(model_responses[0])
+				response = None
+				if mimetype == "image/jpeg" or not file_path:
+					response = x_utils.get_response_from_perplexity(self.browser_manager, global_config["reply_decider_sp"], user_prompt, file_path)
+				if not response:
+					geminiWrapper = pre_model_wrapper(system_instruction=global_config["reply_decider_sp"], delete_files=True)
+					model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
+					response = model_responses[0]
+				response = json_repair.loads(response)
 				is_valid_post = True if response["reply"].lower() == "yes" else False
 
 			return is_valid_post
@@ -74,17 +79,22 @@ class TwitterReply(TwitterProp):
 				user_prompt = response["description"]
 				media_link = response["media_link"]
 				reply_queryselector = response["reply_queryselector"]
-				mime_type, file_path = self.download(media_link, article[0]["id"])
+				mimetype, file_path = self.download(media_link, article[0]["id"])
 				
 				old_post.append(article[0]["id"])
 				if media_link and media_link is not None and file_path is None and media_link.startswith("https://"):
 					continue
 
-				if self.valid(user_prompt, file_path):
+				if self.valid(user_prompt, file_path, mimetype):
 					count += 1
-					geminiWrapper = pre_model_wrapper(system_instruction=random.choice(reply_sp), delete_files=True)
-					model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
-					response = json_repair.loads(model_responses[0])
+					response = None
+					if mimetype == "image/jpeg" or not file_path:
+						response = x_utils.get_response_from_perplexity(self.browser_manager, random.choice(reply_sp), user_prompt, file_path)
+					if not response:
+						geminiWrapper = pre_model_wrapper(system_instruction=random.choice(reply_sp), delete_files=True)
+						model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
+						response = model_responses[0]
+					response = json_repair.loads(response)
 					self._reply(reply_queryselector, response["reply"], article[0]["id"])
 			else:
 				self.reload()

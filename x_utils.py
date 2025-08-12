@@ -259,19 +259,123 @@ def extract_tweet_info(article_html: str) -> dict:
 
 	# 1. Extract tweet text (content inside <span> inside <div> with lang attr)
 	tweet_text_parts = soup.select('div[lang] span')
-	tweet_data["text"] = ' '.join(part.get_text(strip=True) for part in tweet_text_parts)
+	tweet_data["description"] = ' '.join(part.get_text(strip=True) for part in tweet_text_parts)
 
 	# 2. Extract images
 	image_tags = soup.select('img[src*="twimg.com/media"]')
-	tweet_data["images"] = [img['src'] for img in image_tags if 'src' in img.attrs]
-	if tweet_data["images"]:
-		tweet_data["images"] = tweet_data["images"][0]
+	tweet_data["media_link"] = [img['src'] for img in image_tags if 'src' in img.attrs]
+	if tweet_data["media_link"]:
+		tweet_data["media_link"] = tweet_data["media_link"][0]
 	else:
-		tweet_data["images"] = None
+		tweet_data["media_link"] = None
 
 	# 3. Extract video preview (Twitter often uses poster image from <video> or <img>)
 	video_preview_tag = soup.select_one('video, img[src*="video_thumb"]')
 	if video_preview_tag:
 		tweet_data["video_preview"] = video_preview_tag.get('poster') or video_preview_tag.get('src')
 
+	print(tweet_data)
 	return tweet_data
+
+def get_response_from_perplexity(browser_manager, system_prompt, user_prompt, file_path):
+	try:
+		if user_prompt and common.file_exists(file_path):
+			logger_config.info("Opening new browser tab...")
+			new_tab = browser_manager.new_page()
+
+			logger_config.info("Navigating to https://perplexity.ai...")
+			new_tab.goto("https://perplexity.ai")
+
+			logger_config.info("Waiting for menu button to appear (10s)...")
+			new_tab.wait_for_selector('.grow.block button[data-state="closed"]', timeout=10000)
+			
+			logger_config.info("Clicking the dropdown to select model...")
+			new_tab.click('.grow.block button[data-state="closed"]')
+
+			logger_config.info("Waiting for menu items to load (2s)...")
+			new_tab.wait_for_timeout(2000)
+
+			logger_config.info("Looking for menu item containing 'gemini'...")
+			menu_items = new_tab.query_selector_all('div[role="menuitem"]')
+			found = False
+			for item in menu_items:
+				text = item.inner_text().lower()
+				if "gemini" in text:
+					logger_config.info(f"Found model menu item: {text}. Clicking it...")
+					item.click()
+					new_tab.wait_for_timeout(2000)
+					found = True
+					break
+			if not found:
+				logger_config.warning("No menu item containing 'gemini' found.")
+
+			logger_config.info("Clicking the ask input box...")
+			new_tab.click('#ask-input')
+
+			prompt = f"""System Instruction: {system_prompt}\n\nUser Prompt: {user_prompt}"""
+			logger_config.info("Filling in prompt text...")
+			new_tab.fill('#ask-input', prompt)
+
+			upload_image_to_perplexity(new_tab, file_path)
+
+			logger_config.info("Waiting for submit button to be visible...")
+			new_tab.wait_for_selector('button[data-testid="submit-button"]', state='visible')
+
+			logger_config.info("Clicking the submit button...")
+			new_tab.click('button[data-testid="submit-button"]')
+
+			logger_config.info("Waiting for response to generate (2s)...")
+			new_tab.wait_for_timeout(2000)
+
+			logger_config.info("Waiting for copy-code button to appear...")
+			new_tab.wait_for_selector('button[data-testid="copy-code-button"]', state='visible')
+
+			logger_config.info("Clicking the copy-code button to copy response...")
+			new_tab.click('button[data-testid="copy-code-button"]')
+
+			logger_config.info("Waiting a moment before reading clipboard...")
+			new_tab.wait_for_timeout(2000)
+
+			response = new_tab.evaluate("document.querySelector('code').innerText")
+			new_tab.wait_for_timeout(2000)
+			logger_config.info("Successfully copied response from clipboard.")
+			print(response)
+
+			logger_config.info("Parsing response as JSON...")
+			new_tab.close()
+			return response
+
+	except Exception as e:
+		logger_config.error(f"An error occurred in get_response_from_perplexity: {e}")
+
+	return None
+
+def upload_image_to_perplexity(page, file_path):
+	try:
+		if file_path:
+			# Click the paperclip or "Attach files" button
+			upload_button_selector = "button[aria-label='Attach files']"
+			logger_config.info("Waiting for upload button to appear...")
+			page.wait_for_selector(upload_button_selector, state='visible', timeout=10000)
+			logger_config.info("Clicking upload button...")
+			page.click(upload_button_selector)
+
+			# Wait for the file input to render in the DOM
+			file_input_selector = "input[type='file']"
+			logger_config.info("Waiting for file input element...")
+			page.wait_for_selector(file_input_selector, state="attached", timeout=5000)
+
+			logger_config.info(f"Setting input file: {file_path}")
+			page.set_input_files(file_input_selector, file_path)
+
+			# Wait for upload to finish (heuristic: wait for thumbnail or cancel button to appear)
+			logger_config.info("Waiting for upload preview or cancel button (max 20s)...")
+			page.wait_for_timeout(2000)  # short wait before checking
+			page.wait_for_selector("button[aria-label='Cancel upload'], img", timeout=20000)
+
+			logger_config.info("Upload completed successfully.")
+			return True
+
+	except Exception as e:
+		logger_config.error(f"Failed to upload image to Perplexity: {e}")
+	return False

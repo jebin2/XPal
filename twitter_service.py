@@ -18,8 +18,8 @@ class TwitterService(TwitterProp):
 		"post": TwitterPost
 	}
 
-	def __init__(self, page, channel_name=None):
-		super().__init__(page)
+	def __init__(self, browser_manager, page, channel_name=None):
+		super().__init__(browser_manager, page)
 		self.channel_name = channel_name
 		load_toml(self.channel_name)
 		self.load_page()
@@ -43,7 +43,7 @@ class TwitterService(TwitterProp):
 	def play(self):
 		for type in self._get_actions():
 			try:
-				action = self.action_map.get(type)(self.page)
+				action = self.action_map.get(type)(self.browser_manager, self.page)
 				action.start()
 			except Exception as e:
 				logger_config.error(f"Error occurred for {self.channel_name} :: {type} {str(e)} \m {traceback.format_exc()}")

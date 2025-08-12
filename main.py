@@ -76,8 +76,9 @@ def start():
 					config.user_data_dir = os.path.abspath(f"{global_config['config_path']}/{channel}")
 					os.makedirs(config.user_data_dir, exist_ok=True)
 					try:
-						with BrowserManager(config) as page:
-							twitterService = TwitterService(page, channel)
+						browser_manager = BrowserManager(config)
+						with browser_manager as page:
+							twitterService = TwitterService(browser_manager, page, channel)
 							if twitterService.did_login():
 								twitterService.play()
 
