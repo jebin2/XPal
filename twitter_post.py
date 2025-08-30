@@ -55,7 +55,7 @@ class TwitterPost(TwitterProp):
 
 			while True:
 				logger_config.info(f'{global_config["wait_second"]} sec scroll')
-				x_utils.simulate_human_scroll(self.page, global_config["wait_second"])
+				x_utils.simulate_human_scroll(self.page, global_config["wait_second"] + random.randint(200, 500))
 				if count > global_config["post_count"]:
 					break
 
