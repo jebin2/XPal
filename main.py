@@ -9,6 +9,18 @@ from browser_manager import BrowserManager
 import traceback
 import threading
 import common
+import time
+import signal
+import sys
+
+# Global shutdown flag
+shutdown_event = threading.Event()
+
+def signal_handler(signum, frame):
+	"""Handle Ctrl+C gracefully"""
+	logger_config.info("Shutdown signal received. Stopping all threads...")
+	shutdown_event.set()
+	sys.exit(0)
 
 def is_time_run():
 	try:
@@ -32,7 +44,6 @@ def is_time_run():
 		return True # Or False
 
 def initial_setup():
-	import common
 	if common.file_exists(".env"):
 		logger_config.debug("Loading .env file")
 		load_dotenv()
@@ -42,92 +53,134 @@ def initial_setup():
 	common.create_directory(global_config['config_path'])
 	logger_config.info("Configuration directory ensured.")
 
-def process_channel(channel):
-	"""Process a single channel in its own thread"""
-	thread_id = threading.current_thread().ident
-	logger_config.info(f"[Thread {thread_id}] --- Starting channel: {channel} ---")
-
-	try:
-		import x_utils
-		from twitter_service import TwitterService
-		
-		# Create separate temp directory for this thread
-		
-		config = BrowserConfig()
-		config.docker_name = f"xpal_{channel}"
-		config.user_data_dir = os.path.abspath(f"{global_config['config_path']}/{channel}")
-		os.makedirs(config.user_data_dir, exist_ok=True)
-		
-		try:
-			browser_manager = BrowserManager(config)
-			with browser_manager as page:
-				twitterService = TwitterService(browser_manager, page, channel)
-				if twitterService.did_login():
-					twitterService.play()
-					
-					logger_config.info(f"[Thread {thread_id}] Simulating scroll for {channel}...")
-					x_utils.simulate_human_scroll(page, 60)
-					logger_config.success(f"[Thread {thread_id}] --- Finished channel: {channel} ---", seconds=60)
-				else: 
-					logger_config.warning(f"[Thread {thread_id}] --- Not logged in: {channel} ---")
-					
-		except Exception as e:
-			logger_config.error(f"[Thread {thread_id}] Error processing channel '{channel}': {e} {traceback.format_exc()}")
-			
-	except Exception as e:
-		logger_config.error(f"[Thread {thread_id}] Critical error in channel '{channel}': {e} {traceback.format_exc()}")
-
-def start():
+def process_channel(channel, index):
+	"""Process a single channel in its own thread with independent timing loop"""
 	import gc
+	thread_id = threading.current_thread().ident
+	logger_config.info(f"[Thread {thread_id}] Channel '{channel}' thread started")
 
-	initial_setup()
-
-	# --- Main Loop ---
-	while True:
+	# --- Channel-specific Main Loop ---
+	while not shutdown_event.is_set():
 		if not is_time_run():
+			# Check shutdown every 10 seconds instead of sleeping for full 60 seconds
+			for _ in range(6):  # 6 * 10 = 60 seconds
+				if shutdown_event.wait(10):  # Wait 10 seconds or until shutdown
+					logger_config.info(f"[Thread {thread_id}] Channel '{channel}' shutting down...")
+					return
 			continue
 
+		logger_config.info(f"[Thread {thread_id}] --- Starting channel: {channel} ---")
+		
 		try:
-			channel_names_str = os.getenv("channel_names", "")
-			channel_names = [name.strip() for name in channel_names_str.split(",") if name.strip()]
-
-			if not channel_names:
-				logger_config.warning("No valid channel names found in environment variable 'channel_names'. Skipping channel processing.")
-				# Continue to the sleep part of this cycle
-			else:
-				temp_path = "tempOutput"
-				common.remove_directory(temp_path)
-				common.create_directory(temp_path)
-				import random
-				random.shuffle(channel_names)
-				logger_config.info(f"Processing {len(channel_names)} channels in parallel: {', '.join(channel_names)}")
-
-				# Use ThreadPoolExecutor to process channels in parallel
-				max_workers = min(len(channel_names), 10)  # Limit concurrent threads
-				with ThreadPoolExecutor(max_workers=max_workers) as executor:
-					futures = []
-					
-					# Submit each channel to a separate thread
-					for channel in channel_names:
-						future = executor.submit(process_channel, channel)
-						futures.append(future)
-					
-					# Wait for all threads to complete and handle any exceptions
-					for i, future in enumerate(futures):
-						try:
-							future.result()  # This will raise any exception that occurred in the thread
-						except Exception as e:
-							logger_config.error(f"Channel worker {i} failed with error: {e}")
-
-				logger_config.success("All channels processed.")
-
-		except Exception as outer_e:
-			logger_config.error(f"Critical error during run cycle setup or browser operation: {outer_e}")
+			import x_utils
+			from twitter_service import TwitterService
+			
+			config = BrowserConfig()
+			config.docker_name = f"xpal_{channel}"
+			config.user_data_dir = os.path.abspath(f"{global_config['config_path']}/{channel}")
+			config.starting_server_port_to_check = [30081, 31081, 32081, 33081, 34081, 35081][index]
+			config.starting_debug_port_to_check = [40224, 41224, 42224, 43224, 44224, 45224][index]
+			os.makedirs(config.user_data_dir, exist_ok=True)
+			
+			try:
+				browser_manager = BrowserManager(config)
+				with browser_manager as page:
+					twitterService = TwitterService(browser_manager, page, channel)
+					if twitterService.did_login():
+						twitterService.play()
+						
+						logger_config.info(f"[Thread {thread_id}] Simulating scroll for {channel}...")
+						x_utils.simulate_human_scroll(page, 60)
+						logger_config.success(f"[Thread {thread_id}] --- Finished channel: {channel} ---", seconds=60)
+					else: 
+						logger_config.warning(f"[Thread {thread_id}] --- Not logged in: {channel} ---")
+						
+			except Exception as e:
+				logger_config.error(f"[Thread {thread_id}] Error processing channel '{channel}': {e} {traceback.format_exc()}")
+				
+		except Exception as e:
+			logger_config.error(f"[Thread {thread_id}] Critical error in channel '{channel}': {e} {traceback.format_exc()}")
 		finally:
 			gc.collect()
+		
+		wait_seconds = 20 * 1 * 60
+		logger_config.info(f"[Thread {thread_id}] Channel '{channel}' cycle finished. Waiting {wait_seconds // 60} minutes before next time check.")
+		
+		# Check shutdown every 10 seconds during the wait period
+		for _ in range(wait_seconds // 10):  # 6 iterations for 60 seconds
+			if shutdown_event.wait(10):  # Wait 10 seconds or until shutdown
+				logger_config.info(f"[Thread {thread_id}] Channel '{channel}' shutting down...")
+				return
+	
+	logger_config.info(f"[Thread {thread_id}] Channel '{channel}' thread stopped.")
 
-		wait_seconds = 1 * 60
-		logger_config.info(f"Run cycle finished. Waiting {wait_seconds // 60} minutes before next time check.", seconds=wait_seconds)
+def start():
+	# Set up signal handlers for graceful shutdown
+	signal.signal(signal.SIGINT, signal_handler)
+	signal.signal(signal.SIGTERM, signal_handler)
+	
+	initial_setup()
+
+	try:
+		channel_names_str = os.getenv("channel_names", "")
+		channel_names = [name.strip() for name in channel_names_str.split(",") if name.strip()]
+
+		if not channel_names:
+			logger_config.warning("No valid channel names found in environment variable 'channel_names'. Exiting.")
+			return
+		
+		temp_path = "tempOutput"
+		common.remove_directory(temp_path)
+		common.create_directory(temp_path)
+		
+		import random
+		random.shuffle(channel_names)
+		logger_config.info(f"Starting {len(channel_names)} independent channel threads: {', '.join(channel_names)}")
+
+		# Start each channel in its own independent thread
+		max_workers = min(len(channel_names), 10)  # Limit concurrent threads
+		print(f"Starting {max_workers} channel threads")
+		
+		with ThreadPoolExecutor(max_workers=max_workers) as executor:
+			futures = []
+			
+			# Submit each channel to run indefinitely in its own thread
+			for i, channel in enumerate(channel_names):
+				future = executor.submit(process_channel, channel, i)
+				futures.append(future)
+			
+			logger_config.success("All channel threads started successfully.")
+			
+			# Keep the main thread alive and monitor for any thread failures
+			try:
+				# Wait for shutdown signal or thread completion
+				while not shutdown_event.is_set():
+					# Check if any thread has finished (which shouldn't happen normally)
+					done_futures = [f for f in futures if f.done()]
+					if done_futures:
+						for future in done_futures:
+							try:
+								future.result()  # Get any exception that occurred
+							except Exception as e:
+								logger_config.error(f"A channel thread failed: {e}")
+						break
+					
+					# Sleep briefly and check again
+					time.sleep(1)
+					
+			except KeyboardInterrupt:
+				logger_config.info("Received interrupt signal. Shutting down...")
+				shutdown_event.set()
+			except Exception as e:
+				logger_config.error(f"A channel thread failed unexpectedly: {e}")
+				shutdown_event.set()
+
+	except Exception as outer_e:
+		logger_config.error(f"Critical error during startup: {outer_e}")
+		shutdown_event.set()
+		raise
+	finally:
+		logger_config.info("Shutdown complete.")
 
 
 if __name__ == "__main__":

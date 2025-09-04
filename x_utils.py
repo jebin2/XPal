@@ -4,7 +4,7 @@ import common
 from local_global import global_config
 import time
 import random
-import subprocess
+import subprocess, os
 import json
 import cookie_converter
 import json_repair
@@ -282,6 +282,11 @@ def get_response_from_perplexity(browser_manager, system_prompt, user_prompt, fi
 		if user_prompt and common.file_exists(file_path):
 			logger_config.info("Opening new browser tab...")
 			new_tab = browser_manager.new_page()
+			try:
+				with open(os.getenv("COOKIE_2"), "r") as f:
+					saved_cookies = json.load(f)
+				new_tab.context.add_cookies(saved_cookies)
+			except: pass
 
 			logger_config.info("Navigating to https://perplexity.ai...")
 			new_tab.goto("https://perplexity.ai")

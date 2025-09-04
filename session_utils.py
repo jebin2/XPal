@@ -56,9 +56,9 @@ def save_session(page, validator, timeout_sec=300):
             time.sleep(1)  # Avoid CPU-intensive tight loop
 
     # Save session if needed here
-    # cookies = page.context.cookies()
-    # with open(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", 'w') as f:
-    #     json.dump(cookies, f)
+    cookies = page.context.cookies()
+    with open(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", 'w') as f:
+        json.dump(cookies, f)
     return True
 
 def load_session(page, validator):
