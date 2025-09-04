@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from custom_logger import logger_config
 from local_global import global_config
 from dotenv import load_dotenv
@@ -6,6 +7,8 @@ import os
 from browser_manager.browser_config import BrowserConfig
 from browser_manager import BrowserManager
 import traceback
+import threading
+import common
 
 def is_time_run():
 	try:
@@ -39,6 +42,41 @@ def initial_setup():
 	common.create_directory(global_config['config_path'])
 	logger_config.info("Configuration directory ensured.")
 
+def process_channel(channel):
+	"""Process a single channel in its own thread"""
+	thread_id = threading.current_thread().ident
+	logger_config.info(f"[Thread {thread_id}] --- Starting channel: {channel} ---")
+
+	try:
+		import x_utils
+		from twitter_service import TwitterService
+		
+		# Create separate temp directory for this thread
+		
+		config = BrowserConfig()
+		config.docker_name = f"xpal_{channel}"
+		config.user_data_dir = os.path.abspath(f"{global_config['config_path']}/{channel}")
+		os.makedirs(config.user_data_dir, exist_ok=True)
+		
+		try:
+			browser_manager = BrowserManager(config)
+			with browser_manager as page:
+				twitterService = TwitterService(browser_manager, page, channel)
+				if twitterService.did_login():
+					twitterService.play()
+					
+					logger_config.info(f"[Thread {thread_id}] Simulating scroll for {channel}...")
+					x_utils.simulate_human_scroll(page, 60)
+					logger_config.success(f"[Thread {thread_id}] --- Finished channel: {channel} ---", seconds=60)
+				else: 
+					logger_config.warning(f"[Thread {thread_id}] --- Not logged in: {channel} ---")
+					
+		except Exception as e:
+			logger_config.error(f"[Thread {thread_id}] Error processing channel '{channel}': {e} {traceback.format_exc()}")
+			
+	except Exception as e:
+		logger_config.error(f"[Thread {thread_id}] Critical error in channel '{channel}': {e} {traceback.format_exc()}")
+
 def start():
 	import gc
 
@@ -56,39 +94,32 @@ def start():
 			if not channel_names:
 				logger_config.warning("No valid channel names found in environment variable 'channel_names'. Skipping channel processing.")
 				# Continue to the sleep part of this cycle
-
 			else:
-				import x_utils
-				from twitter_service import TwitterService
+				temp_path = "tempOutput"
+				common.remove_directory(temp_path)
+				common.create_directory(temp_path)
 				import random
-
 				random.shuffle(channel_names)
-				logger_config.info(f"Processing {len(channel_names)} channels: {', '.join(channel_names)}")
+				logger_config.info(f"Processing {len(channel_names)} channels in parallel: {', '.join(channel_names)}")
 
-				for channel in channel_names:
-					import common
-					temp_path = "tempOutput"
-					common.remove_directory(temp_path)
-					common.create_directory(temp_path)
-					logger_config.info(f"--- Starting channel: {channel} ---")
-					config = BrowserConfig()
-					config.docker_name = "xpal"
-					config.user_data_dir = os.path.abspath(f"{global_config['config_path']}/{channel}")
-					os.makedirs(config.user_data_dir, exist_ok=True)
-					try:
-						browser_manager = BrowserManager(config)
-						with browser_manager as page:
-							twitterService = TwitterService(browser_manager, page, channel)
-							if twitterService.did_login():
-								twitterService.play()
+				# Use ThreadPoolExecutor to process channels in parallel
+				max_workers = min(len(channel_names), 10)  # Limit concurrent threads
+				with ThreadPoolExecutor(max_workers=max_workers) as executor:
+					futures = []
+					
+					# Submit each channel to a separate thread
+					for channel in channel_names:
+						future = executor.submit(process_channel, channel)
+						futures.append(future)
+					
+					# Wait for all threads to complete and handle any exceptions
+					for i, future in enumerate(futures):
+						try:
+							future.result()  # This will raise any exception that occurred in the thread
+						except Exception as e:
+							logger_config.error(f"Channel worker {i} failed with error: {e}")
 
-								logger_config.info(f"Simulating scroll for {channel}...")
-								x_utils.simulate_human_scroll(page, 60)
-								logger_config.success(f"--- Finished channel: {channel} ---", seconds=60)
-							else: logger_config.warning(f"--- Not logged in: {channel} ---")
-
-					except Exception as e:
-						logger_config.error(f"Error processing channel '{channel}': {e} {traceback.format_exc()}")
+				logger_config.success("All channels processed.")
 
 		except Exception as outer_e:
 			logger_config.error(f"Critical error during run cycle setup or browser operation: {outer_e}")
