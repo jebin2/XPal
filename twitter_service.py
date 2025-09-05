@@ -40,7 +40,7 @@ class TwitterService(TwitterProp):
 	def play(self):
 		for type in self._get_actions():
 			try:
-				action = self.action_map.get(type)(self.browser_manager, self.page)
+				action = self.action_map.get(type)(self.browser_manager, self.page, self.twitter_config)
 				action.start()
 			except Exception as e:
 				logger_config.error(f"Error occurred for {self.channel_name} :: {type} {str(e)} \m {traceback.format_exc()}")

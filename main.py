@@ -1,6 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
 from custom_logger import logger_config
-from dotenv import load_dotenv
 from datetime import datetime, time as date_time
 import os
 from browser_manager.browser_config import BrowserConfig
@@ -11,6 +10,12 @@ import common
 import time
 import signal
 import sys
+from dotenv import load_dotenv
+if common.file_exists(".env"):
+	logger_config.debug("Loading .env file")
+	load_dotenv()
+else:
+	logger_config.warning(".env file not found.")
 
 # Global shutdown flag
 shutdown_event = threading.Event()
@@ -43,12 +48,6 @@ def is_time_run(twitter_config):
 		return True # Or False
 
 def initial_setup(twitter_config):
-	if common.file_exists(".env"):
-		logger_config.debug("Loading .env file")
-		load_dotenv()
-	else:
-		logger_config.warning(".env file not found.")
-
 	common.create_directory(twitter_config['config_path'])
 	logger_config.info("Configuration directory ensured.")
 
@@ -87,7 +86,7 @@ def process_channel(channel, index):
 			try:
 				browser_manager = BrowserManager(config)
 				with browser_manager as page:
-					twitterService = TwitterService(browser_manager, page, channel)
+					twitterService = TwitterService(browser_manager, page, twitter_config, channel)
 					if twitterService.did_login():
 						twitterService.play()
 						

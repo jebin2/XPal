@@ -6,8 +6,8 @@ import random
 from twitter_prop import TwitterProp
 
 class TwitterReply(TwitterProp):
-	def __init__(self, browser_manager, page):
-		super().__init__(browser_manager, page)
+	def __init__(self, browser_manager, page, twitter_config):
+		super().__init__(browser_manager, page, twitter_config)
 
 	def valid(self, user_prompt, file_path, mimetype=None):
 		if super().valid(user_prompt, file_path, mimetype):
