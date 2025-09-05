@@ -1,7 +1,6 @@
 from custom_logger import logger_config
 import requests
 import common
-from local_global import global_config
 import time
 import random
 import subprocess, os
@@ -22,7 +21,7 @@ def click(page, name, timeout=1000 * 60 * 2):
 	else:
 		raise ValueError(f'Element {name} does not exists.')
 
-def download_image(url):
+def download_image(url, twitter_config):
 	try:
 		format = url.split('format=')[-1].split('&')[0].lower() if 'format=' in url else url.split('.')[-1].lower()
 
@@ -33,7 +32,7 @@ def download_image(url):
 		response = requests.get(url, stream=True)
 		response.raise_for_status()
 
-		path = f"{global_config['config_path']}/image.{format}"
+		path = f"{twitter_config['config_path']}/image.{format}"
 		common.remove_file(path)
 
 		with open(path, "wb") as file:
@@ -47,12 +46,12 @@ def download_image(url):
 
 	return None
 
-def download_video(tweet_id):
+def download_video(tweet_id, twitter_config):
 	try:
 		path = "whoa/video.mp4"
 		cookie = "whoa/cookies.txt"
 		if not common.file_exists(cookie):
-			cookie_converter.convert_playwright_to_netscape(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", cookie)
+			cookie_converter.convert_playwright_to_netscape(f"{twitter_config['config_path']}/twitter_{twitter_config['channel_name']}.json", cookie)
 
 		common.remove_file(path)
 
@@ -61,7 +60,7 @@ def download_video(tweet_id):
 			"--extractor-args", "generic:impersonate=firefox",
 			"--cookies", cookie,
 			"--dump-json",
-			f"{global_config['url']}/{global_config['channel_name']}/status/{tweet_id}",
+			f"{twitter_config['url']}/{twitter_config['channel_name']}/status/{tweet_id}",
 		]
 
 		result = subprocess.run(command_metadata, capture_output=True, text=True)
@@ -90,7 +89,7 @@ def download_video(tweet_id):
 			"yt-dlp",
 			"--extractor-args", "generic:impersonate=firefox",
 			"--cookies", cookie,
-			f"{global_config['url']}/{global_config['channel_name']}/status/{tweet_id}",
+			f"{twitter_config['url']}/{twitter_config['channel_name']}/status/{tweet_id}",
 			"-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
 			"-o", path
 		]
@@ -106,10 +105,10 @@ def download_video(tweet_id):
 		logger_config.warning(f"Failed to download the video: {e}")
 		return None
 
-def get_new_post(page, old_post=[]):
+def get_new_post(page, twitter_config, old_post=[]):
 	obj = {
 		"old_post": old_post,
-		"channel_name": global_config['channel_name']
+		"channel_name": twitter_config['channel_name']
 	}
 	return page.evaluate(
 		"""

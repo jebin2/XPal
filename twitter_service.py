@@ -1,4 +1,3 @@
-from local_global import load_toml
 import session_utils
 import random
 from custom_logger import logger_config
@@ -8,7 +7,6 @@ from twitter_quote import TwitterQuote
 from twitter_post import TwitterPost
 from twitter_prop import TwitterProp
 import traceback
-from local_global import global_config
 
 class TwitterService(TwitterProp):
 	action_map = {
@@ -18,22 +16,21 @@ class TwitterService(TwitterProp):
 		"post": TwitterPost
 	}
 
-	def __init__(self, browser_manager, page, channel_name=None):
-		super().__init__(browser_manager, page)
+	def __init__(self, browser_manager, page, twitter_config, channel_name=None):
+		super().__init__(browser_manager, page, twitter_config)
 		self.channel_name = channel_name
-		load_toml(self.channel_name)
 		self.load_page()
-		session_utils.load_session(self.page, self.did_login)
+		session_utils.load_session(self.page, self.did_login, self.twitter_config)
 		self.reload()
 
 	def _get_actions(self):
-		actions = global_config["actions"].split(",")
+		actions = self.twitter_config["actions"].split(",")
 		random.shuffle(actions)
 		return actions
 
 	def did_login(self):
 		try:
-			locator = self.page.locator(global_config["post_textarea_selector"])
+			locator = self.page.locator(self.twitter_config["post_textarea_selector"])
 			return locator.is_visible()
 		except Exception as e:
 			print(e)

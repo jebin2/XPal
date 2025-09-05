@@ -1,6 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
 from custom_logger import logger_config
-from local_global import global_config
 from dotenv import load_dotenv
 from datetime import datetime, time as date_time
 import os
@@ -22,10 +21,10 @@ def signal_handler(signum, frame):
 	shutdown_event.set()
 	sys.exit(0)
 
-def is_time_run():
+def is_time_run(twitter_config):
 	try:
-		start_at = int(global_config['start_at']) # e.g., 18 for 6 PM
-		end_at = int(global_config['end_at'])   # e.g., 6 for 6 AM
+		start_at = int(twitter_config['start_at']) # e.g., 18 for 6 PM
+		end_at = int(twitter_config['end_at'])   # e.g., 6 for 6 AM
 
 		now = datetime.now().time()
 
@@ -43,25 +42,28 @@ def is_time_run():
 	except:
 		return True # Or False
 
-def initial_setup():
+def initial_setup(twitter_config):
 	if common.file_exists(".env"):
 		logger_config.debug("Loading .env file")
 		load_dotenv()
 	else:
 		logger_config.warning(".env file not found.")
 
-	common.create_directory(global_config['config_path'])
+	common.create_directory(twitter_config['config_path'])
 	logger_config.info("Configuration directory ensured.")
 
 def process_channel(channel, index):
 	"""Process a single channel in its own thread with independent timing loop"""
+	from local_global import load_toml
+	twitter_config = load_toml(channel_name=channel)
+	initial_setup(twitter_config)
 	import gc
 	thread_id = threading.current_thread().ident
 	logger_config.info(f"[Thread {thread_id}] Channel '{channel}' thread started")
 
 	# --- Channel-specific Main Loop ---
 	while not shutdown_event.is_set():
-		if not is_time_run():
+		if not is_time_run(twitter_config):
 			# Check shutdown every 10 seconds instead of sleeping for full 60 seconds
 			for _ in range(6):  # 6 * 10 = 60 seconds
 				if shutdown_event.wait(10):  # Wait 10 seconds or until shutdown
@@ -77,7 +79,7 @@ def process_channel(channel, index):
 			
 			config = BrowserConfig()
 			config.docker_name = f"xpal_{channel}"
-			config.user_data_dir = os.path.abspath(f"{global_config['config_path']}/{channel}")
+			config.user_data_dir = os.path.abspath(f"{twitter_config['config_path']}/{channel}")
 			config.starting_server_port_to_check = [30081, 31081, 32081, 33081, 34081, 35081][index]
 			config.starting_debug_port_to_check = [40224, 41224, 42224, 43224, 44224, 45224][index]
 			os.makedirs(config.user_data_dir, exist_ok=True)
@@ -118,8 +120,6 @@ def start():
 	# Set up signal handlers for graceful shutdown
 	signal.signal(signal.SIGINT, signal_handler)
 	signal.signal(signal.SIGTERM, signal_handler)
-	
-	initial_setup()
 
 	try:
 		channel_names_str = os.getenv("channel_names", "")

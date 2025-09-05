@@ -1,30 +1,22 @@
-import toml
-import json
-from custom_logger import logger_config
-import common
-
-global_config = {}
-
 def load_toml(channel_name=None):
+	import toml
+	import common
+	config = {}
+
+	# Load base config
 	with open("twitter.toml", 'r') as file:
-		toml_data = toml.load(file)
-		global_config.update(toml_data)
+		config.update(toml.load(file))
 
-	if channel_name:
-		if not common.file_exists(f"{global_config['config_path']}/{channel_name}.toml"):
-			content = f"""channel_name = "{channel_name}"
-"""
-			with open(f"{global_config['config_path']}/{channel_name}.toml", 'w') as f:
-				f.write(content)
+	channel_file = f"{config['config_path']}/{channel_name}.toml"
+	if not common.file_exists(channel_file):
+		with open(channel_file, 'w') as f:
+			f.write(f'channel_name = "{channel_name}"\n')
+	with open(channel_file, 'r') as file:
+		config.update(toml.load(file))
 
-		with open(f"{global_config['config_path']}/{channel_name}.toml", 'r') as file:
-			toml_data = toml.load(file)
-			global_config.update(toml_data)
+	private_file = f"{config['config_path']}/.private.toml"
+	if common.file_exists(private_file):
+		with open(private_file, 'r') as file:
+			config.update(toml.load(file))
 
-	with open(f"{global_config['config_path']}/.private.toml", 'r') as file:
-		toml_data = toml.load(file)
-		global_config.update(toml_data)
-
-	logger_config.info(json.dumps(global_config, indent=4))
-
-load_toml()
+	return config

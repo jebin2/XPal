@@ -1,9 +1,7 @@
 import json
 import time
-import common
-from local_global import global_config
 
-def save_session(page, validator, timeout_sec=300):
+def save_session(page, validator, twitter_config, timeout_sec=300):
     if not validator():
         # Show overlay on page
         page.evaluate("""
@@ -57,19 +55,13 @@ def save_session(page, validator, timeout_sec=300):
 
     # Save session if needed here
     cookies = page.context.cookies()
-    with open(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", 'w') as f:
+    with open(f"{twitter_config['config_path']}/twitter_{twitter_config['channel_name']}.json", 'w') as f:
         json.dump(cookies, f)
     return True
 
-def load_session(page, validator):
-    # if common.file_exists(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json"):
-    #     with open(f"{global_config['config_path']}/twitter_{global_config['channel_name']}.json", 'r') as f:
-    #         cookies = json.load(f)
-    #         page.context.add_cookies(cookies)
-    #         return True
-
+def load_session(page, validator, twitter_config):
     if validator():
         return True
     else:
-        success = save_session(page, validator)
+        success = save_session(page, validator, twitter_config)
         return validator() if success else False
