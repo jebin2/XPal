@@ -100,6 +100,8 @@ class TwitterPost(TwitterProp):
 					model_responses = geminiWrapper.send_message("", file_path=file_path)
 					response = model_responses[0]
 				response = json_repair.loads(response)
+				if isinstance(response, list) and response:
+					response = response[0]
 				if response["can_post"] == "yes" and len(response["post"]) < 250 and self.valid(response["post"], file_path, mimetype):
 					meta_data = self.image_metadata(file_path)
 					new_post_content = response["post"]
