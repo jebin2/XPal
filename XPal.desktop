@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=XPal
+Comment=Twitter Automation
+Exec=/home/jebin/git/XPal/desktop.sh
+Icon=/home/jebin/git/XPal/icon.png
+Terminal=true
+Categories=Utility;Network;
