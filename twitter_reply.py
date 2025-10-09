@@ -65,7 +65,7 @@ class TwitterReply(TwitterProp):
 			max_itr -= 1
 			logger_config.info(f'{self.twitter_config["wait_second"]} sec scroll')
 			x_utils.simulate_human_scroll(self.page, self.twitter_config["wait_second"])
-			if count > self.twitter_config["reply_count"] or max_itr < 0:
+			if count >= self.twitter_config["reply_count"] or max_itr < 0:
 				break
 
 			logger_config.info(f"Getting new post, old_post:: {old_post}")
