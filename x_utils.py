@@ -383,3 +383,11 @@ def upload_image_to_perplexity(page, file_path):
 	except Exception as e:
 		logger_config.error(f"Failed to upload image to Perplexity: {e}")
 	return False
+
+def remove_bracket(text):
+	import re
+	cleaned = re.sub(r"\(.*?\) |\[.*?\] ", "", text)
+	cleaned = re.sub(r"\(.*?\)|\[.*?\]", "", cleaned)
+	cleaned = re.sub("[—]+", " ", cleaned)
+	cleaned = re.sub("[-]+", " ", cleaned)
+	return cleaned

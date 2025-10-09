@@ -94,6 +94,6 @@ class TwitterReply(TwitterProp):
 						model_responses = geminiWrapper.send_message(user_prompt, file_path=file_path)
 						response = model_responses[0]
 					response = json_repair.loads(response)
-					self._reply(reply_queryselector, response["reply"], article[0]["id"])
+					self._reply(reply_queryselector, x_utils.remove_bracket(response["reply"]), article[0]["id"])
 			else:
 				self.reload()

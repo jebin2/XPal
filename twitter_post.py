@@ -104,7 +104,7 @@ class TwitterPost(TwitterProp):
 					response = response[0]
 				if response["can_post"] == "yes" and len(response["post"]) < 250 and self.valid(response["post"], file_path, mimetype):
 					meta_data = self.image_metadata(file_path)
-					new_post_content = response["post"]
+					new_post_content = x_utils.remove_bracket(response["post"])
 					if meta_data and "post" in meta_data:
 						if len(f"{new_post_content} {meta_data['post']}") <= 250:
 							new_post_content = f"{new_post_content} {meta_data['post']}"

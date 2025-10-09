@@ -26,7 +26,8 @@ class TwitterService(TwitterProp):
 	def _get_actions(self):
 		actions = self.twitter_config["actions"].split(",")
 		random.shuffle(actions)
-		return [x for a in actions[:-1] for x in (a, "post")] + [actions[-1]] # adding post alternatively
+		return actions
+		# return [x for a in actions[:-1] for x in (a, "post")] + [actions[-1]] # adding post alternatively
 
 	def did_login(self):
 		try:

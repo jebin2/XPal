@@ -119,6 +119,6 @@ class TwitterQuote(TwitterProp):
 						response = model_responses[0]
 					response = json_repair.loads(response)
 					if len(response["reply"]) < 250:
-						self._quote(repost_queryselector, response["reply"], article[0]["id"])
+						self._quote(repost_queryselector, x_utils.remove_bracket(response["reply"]), article[0]["id"])
 			else:
 				self.reload()
