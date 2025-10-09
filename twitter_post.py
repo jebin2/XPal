@@ -69,7 +69,7 @@ class TwitterPost(TwitterProp):
 				media_files.sort(key=os.path.getmtime, reverse=True)
 
 				# Separate videos and images
-				videos = [f for f in media_files if f.endswith((".mkv", ".mp4")) and "_laugh_best_clip" in f]
+				videos = [f for f in media_files if f.endswith((".mkv", ".mp4"))]
 				images = [f for f in media_files if f.endswith((".png", ".jpg"))]
 
 				# Pick video or image alternately
