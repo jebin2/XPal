@@ -54,7 +54,7 @@ class TwitterPost(TwitterProp):
 
 			while True:
 				logger_config.info(f'{self.twitter_config["wait_second"]} sec scroll')
-				x_utils.simulate_human_scroll(self.page, self.twitter_config["wait_second"] + random.randint(200, 500))
+				# x_utils.simulate_human_scroll(self.page, self.twitter_config["wait_second"] + random.randint(800, 1200))
 				if count > self.twitter_config["post_count"]:
 					break
 
@@ -69,7 +69,7 @@ class TwitterPost(TwitterProp):
 				media_files.sort(key=os.path.getmtime, reverse=True)
 
 				# Separate videos and images
-				videos = [f for f in media_files if f.endswith((".mkv", ".mp4"))]
+				videos = [f for f in media_files if f.endswith((".mkv", ".mp4")) and "_laugh_best_clip" in f]
 				images = [f for f in media_files if f.endswith((".png", ".jpg"))]
 
 				# Pick video or image alternately
@@ -102,12 +102,12 @@ class TwitterPost(TwitterProp):
 				response = json_repair.loads(response)
 				if isinstance(response, list) and response:
 					response = response[0]
+
 				if response["can_post"] == "yes" and len(response["post"]) < 250 and self.valid(response["post"], file_path, mimetype):
 					meta_data = self.image_metadata(file_path)
 					new_post_content = x_utils.remove_bracket(response["post"])
 					if meta_data and "post" in meta_data:
-						if len(f"{new_post_content} {meta_data['post']}") <= 250:
-							new_post_content = f"{new_post_content} {meta_data['post']}"
+						new_post_content = x_utils.remove_bracket(meta_data['post'])
 
 					self._post(new_post_content, file_path)
 					if self.twitter_config["delete_media_path_after_post"] == "yes":

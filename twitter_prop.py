@@ -5,6 +5,7 @@ import x_utils
 import piexif
 from PIL import Image, PngImagePlugin
 import common
+import json, subprocess
 
 class TwitterProp:
 	def __init__(self, browser_manager, page, twitter_config):
@@ -67,6 +68,17 @@ class TwitterProp:
 			elif image.endswith(".jpg"):
 				exif_data = piexif.load(image)
 				data = exif_data["0th"].get(piexif.ImageIFD.XPComment)
+
+			elif image.endswith(".mp4"):
+				result = subprocess.run(
+					["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", image],
+					stdout=subprocess.PIPE,
+					stderr=subprocess.PIPE,
+					text=True
+				)
+				info = json.loads(result.stdout)
+				tags = info.get("format", {}).get("tags", {})
+				data = tags.get("description")
 
 			return json_repair.loads(data)
 		except:

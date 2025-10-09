@@ -4,6 +4,6 @@ try:
 	from functools import partial
 	from gemiwrap import GeminiWrapper
 
-	pre_model_wrapper = partial(GeminiWrapper, model_name="gemini-2.0-flash")
+	pre_model_wrapper = partial(GeminiWrapper, model_name="gemini-flash-latest")
 except:
 	logger_config.warning("Gemini Wrapper is not initialised.")
