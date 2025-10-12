@@ -395,6 +395,9 @@ def remove_bracket(text):
 def compress_video(input_path, target_size_mb=45):
 	import subprocess
 	import os
+	final_size = os.path.getsize(input_path) // (1024 * 1024)
+	if final_size < target_size_mb:
+		return input_path
 	# Get video duration (in seconds)
 	cmd = [
 		"ffprobe", "-v", "error", "-show_entries", "format=duration",
