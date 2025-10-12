@@ -66,65 +66,66 @@ class TwitterPost(TwitterProp):
 			next_is_video = True  # Start with video first
 
 			while True:
-				# try:
-				logger_config.info(f'{self.twitter_config["wait_second"]} sec scroll')
-				if count > self.twitter_config["post_count"]:
-					break
+				try:
+					logger_config.info(f'{self.twitter_config["wait_second"]} sec scroll')
+					if count > self.twitter_config["post_count"]:
+						break
 
-				x_utils.simulate_human_scroll(self.page, self.twitter_config["wait_second"] + random.randint(800, 1200))
-				media_files = [
-					file for file in common.list_files_recursive(self.twitter_config["media_path"]) 
-					if file.endswith((".png", ".jpg", ".mkv", ".mp4"))
-				]
+					x_utils.simulate_human_scroll(self.page, self.twitter_config["wait_second"] + random.randint(800, 1200))
+					media_files = [
+						file for file in common.list_files_recursive(self.twitter_config["media_path"]) 
+						if file.endswith((".png", ".jpg", ".mkv", ".mp4"))
+					]
 
-				if not media_files:
-					return
+					if not media_files:
+						return
 
-				media_files.sort(key=os.path.getmtime, reverse=True)
+					media_files.sort(key=os.path.getmtime, reverse=True)
 
-				# Separate videos and images
-				videos = [f for f in media_files if f.endswith((".mkv", ".mp4"))]
-				images = [f for f in media_files if f.endswith((".png", ".jpg"))]
+					# Separate videos and images
+					videos = [f for f in media_files if f.endswith((".mkv", ".mp4"))]
+					images = [f for f in media_files if f.endswith((".png", ".jpg"))]
 
-				# Pick video or image alternately
-				if next_is_video and videos:
-					file_path = random.choice(videos[:10+count])
-					mimetype = "video/mp4"
-				elif not next_is_video and images:
-					file_path = random.choice(images[:10+count])
-					mimetype = "image/jpeg"
-				elif videos:  # fallback to video if no images
-					file_path = random.choice(videos[:10+count])
-					mimetype = "video/mp4"
-				elif images:  # fallback to image if no videos
-					file_path = random.choice(images[:10+count])
-					mimetype = "image/jpeg"
-				else:
-					return  # No media left
+					# Pick video or image alternately
+					if next_is_video and videos:
+						file_path = random.choice(videos[:10+count])
+						mimetype = "video/mp4"
+					elif not next_is_video and images:
+						file_path = random.choice(images[:10+count])
+						mimetype = "image/jpeg"
+					elif videos:  # fallback to video if no images
+						file_path = random.choice(videos[:10+count])
+						mimetype = "video/mp4"
+					elif images:  # fallback to image if no videos
+						file_path = random.choice(images[:10+count])
+						mimetype = "image/jpeg"
+					else:
+						return  # No media left
 
-				# Toggle for next iteration
-				next_is_video = not next_is_video
+					# Toggle for next iteration
+					next_is_video = not next_is_video
 
-				response = None
-				if mimetype == "image/jpeg" or not file_path:
-					response = x_utils.get_response_from_perplexity(self.browser_manager, self.twitter_config["post_sp"], "", file_path)
-				if not response:
-					geminiWrapper = pre_model_wrapper(system_instruction=self.twitter_config["post_sp"], delete_files=True)
-					model_responses = geminiWrapper.send_message("", file_path=file_path)
-					response = model_responses[0]
-				response = json_repair.loads(response)
-				if isinstance(response, list) and response:
-					response = response[0]
+					response = None
+					if mimetype == "image/jpeg" or not file_path:
+						response = x_utils.get_response_from_perplexity(self.browser_manager, self.twitter_config["post_sp"], "", file_path)
+					if not response:
+						geminiWrapper = pre_model_wrapper(system_instruction=self.twitter_config["post_sp"], delete_files=True)
+						model_responses = geminiWrapper.send_message("", file_path=file_path)
+						response = model_responses[0]
+					response = json_repair.loads(response)
+					if isinstance(response, list) and response:
+						response = response[0]
 
-				if response["can_post"] == "yes" and len(response["post"]) < 250:
-					meta_data = self.image_metadata(file_path)
-					new_post_content = x_utils.remove_bracket(response["post"])
-					if meta_data and "post" in meta_data:
-						new_post_content = x_utils.remove_bracket(meta_data['post'])
+					if response["can_post"] == "yes" and len(response["post"]) < 250 and self.valid(response["post"], file_path, mimetype):
+						meta_data = self.image_metadata(file_path)
+						new_post_content = x_utils.remove_bracket(response["post"])
+						if meta_data and "post" in meta_data:
+							new_post_content = x_utils.remove_bracket(meta_data['post'])
 
-					if self._post(new_post_content, file_path):
-						count += 1
-						if self.twitter_config["delete_media_path_after_post"] == "yes":
-							common.remove_file(file_path)
-				# except Exception as e:
-				# 	logger_config.warning(f"Error occurred while trying to post: {e}")
+						if self._post(new_post_content, file_path):
+							count += 1
+							if self.twitter_config["delete_media_path_after_post"] == "yes":
+								common.remove_file(file_path)
+				except Exception as e:
+					logger_config.warning(f"Error occurred while trying to post: {e}")
+					self.reload()
