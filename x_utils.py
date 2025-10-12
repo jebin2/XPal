@@ -391,3 +391,40 @@ def remove_bracket(text):
 	cleaned = re.sub("[—]+", " ", cleaned)
 	cleaned = re.sub("[-]+", " ", cleaned)
 	return cleaned
+
+def compress_video(input_path, target_size_mb=45):
+	import subprocess
+	import os
+	# Get video duration (in seconds)
+	cmd = [
+		"ffprobe", "-v", "error", "-show_entries", "format=duration",
+		"-of", "default=noprint_wrappers=1:nokey=1", input_path
+	]
+	duration = float(subprocess.check_output(cmd).strip())
+
+	# Compute target bitrate in kbps
+	target_bitrate = (target_size_mb * 8192) / duration  # in kbps
+	audio_bitrate = 128  # kbps (fixed)
+	video_bitrate = target_bitrate - audio_bitrate
+
+	filename, ext = os.path.splitext(os.path.basename(input_path))
+	ext = ext.lower()
+	temp_path = "tempOutput"
+	output_path = f"{temp_path}/{filename}_clean{ext}"
+	# Run FFmpeg compression
+	ffmpeg_cmd = [
+		"ffmpeg", "-y",
+		"-i", input_path,
+		"-c:v", "libx264",
+		"-b:v", f"{video_bitrate}k",
+		"-c:a", "aac",
+		"-b:a", f"{audio_bitrate}k",
+		"-movflags", "+faststart",
+		output_path
+	]
+
+	subprocess.run(ffmpeg_cmd, check=True)
+
+	final_size = os.path.getsize(output_path) / (1024 * 1024)
+	print(f"✅ Compressed file size: {final_size:.2f} MB")
+	return output_path

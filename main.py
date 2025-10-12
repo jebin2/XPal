@@ -104,7 +104,7 @@ def process_channel(channel, index):
 		finally:
 			gc.collect()
 		
-		wait_seconds = 20 * 1 * 60
+		wait_seconds = 10 * 1 * 60
 		logger_config.info(f"[Thread {thread_id}] Channel '{channel}' cycle finished. Waiting {wait_seconds // 60} minutes before next time check.")
 		
 		# Check shutdown every 10 seconds during the wait period
