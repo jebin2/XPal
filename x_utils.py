@@ -431,3 +431,8 @@ def compress_video(input_path, target_size_mb=45):
 	final_size = os.path.getsize(output_path) / (1024 * 1024)
 	print(f"✅ Compressed file size: {final_size:.2f} MB")
 	return output_path
+
+def click_for_you(page):
+	page.wait_for_timeout(2000)
+	page.locator('main [href="/home"]', has_text="For you").click()
+	page.wait_for_timeout(2000)

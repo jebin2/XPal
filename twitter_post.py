@@ -64,11 +64,12 @@ class TwitterPost(TwitterProp):
 		if self.twitter_config["media_path"]:
 			count = 0
 			next_is_video = True  # Start with video first
-
+			max_itr = 20
 			while True:
 				try:
+					x_utils.click_for_you(self.page)
 					logger_config.info(f'{self.twitter_config["wait_second"]} sec scroll')
-					if count > self.twitter_config["post_count"]:
+					if count >= self.twitter_config["post_count"]:
 						break
 
 					x_utils.simulate_human_scroll(self.page, self.twitter_config["wait_second"] + random.randint(800, 1200))
@@ -129,3 +130,6 @@ class TwitterPost(TwitterProp):
 				except Exception as e:
 					logger_config.warning(f"Error occurred while trying to post: {e}")
 					self.reload()
+					max_itr -= 1
+					if max_itr < 0:
+						break

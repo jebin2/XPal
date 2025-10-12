@@ -59,6 +59,7 @@ class TwitterReply(TwitterProp):
 
 		max_itr = 20
 		while True:
+			x_utils.click_for_you(self.page)
 			if max_itr == 10:
 				self.reload()
 
