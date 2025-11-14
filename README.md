@@ -19,7 +19,7 @@ A Python bot automating Twitter actions using Google AI Studio for content and a
 Uses TOML files: `twitter.toml` (base config), `[channel_name].toml` (channel overrides), `.env` (sensitive keys).
 
 - **`twitter.toml`**: Base settings, action counts, AI prompts, UI selectors
-- **`.env`**: Store `GEMINI_API_KEYS` API key and `channel_names` = list of channel name comma separated
+- **`.env`**: Store `GEMINI_API_KEYS` API key and `CHANNEL_NAMES` = list of channel name comma separated
 - **`[channel_name].toml`**: Channel-specific overrides for settings it will create under `config_path`
 
 ## Setup Instructions

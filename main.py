@@ -121,11 +121,11 @@ def start():
 	signal.signal(signal.SIGTERM, signal_handler)
 
 	try:
-		channel_names_str = os.getenv("channel_names", "")
+		channel_names_str = os.getenv("CHANNEL_NAMES", "")
 		channel_names = [name.strip() for name in channel_names_str.split(",") if name.strip()]
 
 		if not channel_names:
-			logger_config.warning("No valid channel names found in environment variable 'channel_names'. Exiting.")
+			logger_config.warning("No valid channel names found in environment variable 'CHANNEL_NAMES'. Exiting.")
 			return
 		
 		temp_path = "tempOutput"
