@@ -9,3 +9,4 @@ git+https://github.com/jebin2/browser_manager.git
 pillow
 json_repair
 beautifulsoup4
+huggingface_hub

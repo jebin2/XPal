@@ -5,7 +5,7 @@ import x_utils
 import piexif
 from PIL import Image, PngImagePlugin
 import common
-import json, subprocess
+import json, subprocess, os
 
 class TwitterProp:
 	def __init__(self, browser_manager, page, twitter_config):
@@ -84,6 +84,42 @@ class TwitterProp:
 		except:
 			return None
 
+	def get_media_files(self):
+		if os.getenv("USE_HF_DATA", "false").lower() == "true":
+			from custom_lib.lib.hf_dataset_client import HFDatasetClient
+			hf_client = HFDatasetClient()
+			media_files = hf_client.list_files()
+			cond_path = self.twitter_config["media_path"].split("/")[-1]
+			media_files = [
+				file for file in media_files
+				if cond_path in file and file.endswith((".png", ".jpg", ".mkv", ".mp4"))
+			]
+			return media_files
+
+		media_files = [
+			file for file in common.list_files_recursive(self.twitter_config["media_path"])
+			if file.endswith((".png", ".jpg", ".mkv", ".mp4"))
+		]
+		media_files.sort(key=os.path.getmtime, reverse=True)
+		return media_files
+
+	def get_media_files_downloaded(self, file_path):
+		if os.getenv("USE_HF_DATA", "false").lower() == "true":
+			temp_path = f"tempOutput/{os.path.basename(file_path)}"
+			from custom_lib.lib.hf_dataset_client import HFDatasetClient
+			hf_client = HFDatasetClient()
+			hf_client.download(file_path, temp_path)
+			return temp_path
+
+		return file_path
+
+	def delete_media_file(self, file_path):
+		if os.getenv("USE_HF_DATA", "false").lower() == "true":
+			from custom_lib.lib.hf_dataset_client import HFDatasetClient
+			hf_client = HFDatasetClient()
+			hf_client.delete(file_path)
+		else:
+			common.remove_file(file_path)
 
 	def go_back(self):
 		x_utils.click(self.page, self.twitter_config["back_selector"])

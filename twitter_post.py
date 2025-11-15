@@ -73,15 +73,10 @@ class TwitterPost(TwitterProp):
 						break
 
 					x_utils.simulate_human_scroll(self.page, self.twitter_config["wait_second"] + random.randint(800, 1200))
-					media_files = [
-						file for file in common.list_files_recursive(self.twitter_config["media_path"]) 
-						if file.endswith((".png", ".jpg", ".mkv", ".mp4"))
-					]
+					media_files = self.get_media_files()
 
 					if not media_files:
 						return
-
-					media_files.sort(key=os.path.getmtime, reverse=True)
 
 					# Separate videos and images
 					videos = [f for f in media_files if f.endswith((".mkv", ".mp4"))]
@@ -103,6 +98,9 @@ class TwitterPost(TwitterProp):
 					else:
 						return  # No media left
 
+					original_file_path = file_path
+					file_path = self.get_media_files_downloaded(file_path)
+
 					# Toggle for next iteration
 					next_is_video = not next_is_video
 
@@ -112,8 +110,8 @@ class TwitterPost(TwitterProp):
 						new_post_content = x_utils.remove_bracket(meta_data['post'])
 					else:
 						response = None
-						if mimetype == "image/jpeg" or not file_path:
-							response = x_utils.get_response_from_perplexity(self.browser_manager, self.twitter_config["post_sp"], "", file_path)
+						# if mimetype == "image/jpeg" or not file_path:
+						# 	response = x_utils.get_response_from_perplexity(self.browser_manager, self.twitter_config["post_sp"], "", file_path)
 						if not response:
 							geminiWrapper = pre_model_wrapper(system_instruction=self.twitter_config["post_sp"], delete_files=True)
 							model_responses = geminiWrapper.send_message("", file_path=file_path)
@@ -122,13 +120,13 @@ class TwitterPost(TwitterProp):
 						if isinstance(response, list) and response:
 							response = response[0]
 
-						if response["can_post"] == "yes" and len(response["post"]) < 250 and self.valid(response["post"], file_path, mimetype):
+						if response["can_post"] == "yes" and len(response["post"]) < 250: # and self.valid(response["post"], file_path, mimetype):
 							new_post_content = x_utils.remove_bracket(response["post"])
 
 					if new_post_content and self._post(new_post_content, file_path):
 						count += 1
 						if self.twitter_config["delete_media_path_after_post"] == "yes":
-							common.remove_file(file_path)
+							self.delete_media_file(original_file_path)
 				except Exception as e:
 					logger_config.warning(f"Error occurred while trying to post: {e}")
 					self.reload()
