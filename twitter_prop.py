@@ -118,6 +118,14 @@ class TwitterProp:
 			from custom_lib.lib.hf_dataset_client import HFDatasetClient
 			hf_client = HFDatasetClient()
 			hf_client.delete(file_path)
+
+			temp_path = f'tempOutput/{self.twitter_config["channel_name"]}_deleted_path.txt'
+			try:
+				hf_client.download("deleted_path.txt", temp_path)
+			except: pass
+			with open(temp_path, 'a') as file:
+				file.write(file_path + "\n")
+			hf_client.upload(temp_path, "deleted_path.txt")
 		else:
 			common.remove_file(file_path)
 
