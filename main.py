@@ -47,15 +47,10 @@ def is_time_run(twitter_config):
 	except:
 		return True # Or False
 
-def initial_setup(twitter_config):
-	common.create_directory(twitter_config['config_path'])
-	logger_config.info("Configuration directory ensured.")
-
 def process_channel(channel, index):
 	"""Process a single channel in its own thread with independent timing loop"""
 	from local_global import load_toml
 	twitter_config = load_toml(channel_name=channel)
-	initial_setup(twitter_config)
 	import gc
 	thread_id = threading.current_thread().ident
 	logger_config.info(f"[Thread {thread_id}] Channel '{channel}' thread started")
