@@ -365,12 +365,9 @@ def upload_image_to_perplexity(page, file_path):
 			page.click(upload_button_selector)
 
 			# Wait for the file input to render in the DOM
-			file_input_selector = "input[type='file']"
-			logger_config.info("Waiting for file input element...")
-			page.wait_for_selector(file_input_selector, state="attached", timeout=5000)
-
-			logger_config.info(f"Setting input file: {file_path}")
-			page.set_input_files(file_input_selector, file_path)
+			logger_config.info(f"Uploading file: {file_path}")
+			file_input = page.locator('input[type="file"]').last
+			file_input.set_input_files(file_path)
 
 			# Wait for upload to finish (heuristic: wait for thumbnail or cancel button to appear)
 			logger_config.info("Waiting for upload preview or cancel button (max 20s)...")
@@ -434,5 +431,5 @@ def compress_video(input_path, target_size_mb=45):
 
 def click_for_you(page):
 	page.wait_for_timeout(2000)
-	page.locator('main [href="/home"]', has_text="For you").click()
+	page.locator('div[role="tablist"]').locator('div').first
 	page.wait_for_timeout(2000)
