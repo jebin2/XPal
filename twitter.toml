@@ -4,6 +4,8 @@ start_at=18
 end_at=6
 actions = "post,reply,like,quote"
 config_path = "whoa"
+deletable_path = "tempOutput"
+
 wait_second = 20
 like_count = 5
 reply_count = 0

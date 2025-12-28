@@ -32,7 +32,7 @@ def download_image(url, twitter_config):
 		response = requests.get(url, stream=True)
 		response.raise_for_status()
 
-		path = f"{twitter_config['config_path']}/{twitter_config['channel_name']}_image.{format}"
+		path = f"{twitter_config['deletable_path']}/{twitter_config['channel_name']}_image.{format}"
 		common.remove_file(path)
 
 		with open(path, "wb") as file:
@@ -48,8 +48,8 @@ def download_image(url, twitter_config):
 
 def download_video(tweet_id, twitter_config):
 	try:
-		path = f"whoa/{twitter_config['channel_name']}_video.mp4"
-		cookie = "whoa/cookies.txt"
+		path = f"{twitter_config['deletable_path']}/{twitter_config['channel_name']}_video.mp4"
+		cookie = f"{twitter_config['config_path']}/cookies.txt"
 		if not common.file_exists(cookie):
 			cookie_converter.convert_playwright_to_netscape(f"{twitter_config['config_path']}/twitter_{twitter_config['channel_name']}.json", cookie)
 

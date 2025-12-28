@@ -8,6 +8,7 @@ def load_toml(channel_name=None):
 		config.update(toml.load(file))
 
 	common.create_directory(config['config_path'])
+	common.create_directory(config['deletable_path'])
 
 	channel_file = f"{config['config_path']}/{channel_name}.toml"
 	if not common.file_exists(channel_file):
